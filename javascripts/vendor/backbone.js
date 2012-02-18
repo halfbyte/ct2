@@ -1,3 +1,9 @@
+// @codekit-prepend "jquery.js";
+// @codekit-prepend "json2.js";
+// @codekit-prepend "underscore.js";
+// @codekit-append "handlebars.js";
+// @codekit-append "soundbridge.js";
+
 //     Backbone.js 0.9.1
 
 //     (c) 2010-2012 Jeremy Ashkenas, DocumentCloud Inc.
