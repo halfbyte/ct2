@@ -2,24 +2,26 @@
 
 window.App = {views: {}}
 
-window.App.views.TrackerView = Backbone.View.extend
-  tagName: 'table',
+class window.App.views.TrackerView extends Backbone.View
+  tagName: 'table'
   NOTES: ['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-', 'B#']
 
-  current_pattern = 0
+  current_pattern: 0
   attrs:
     cellspacing: 0
     cellpadding: 0
+  
   initialize: () ->
     console.log("initialized")
     @currentRow = 0
     @currentCol = 0
-    _.bindAll(this, 'keyup_handler')
+    
 
   set_data: (data) ->
     @module = data
-  keyup_handler: (e) ->
-    console.log(this);
+
+  keyup_handler: (e) =>
+    console.log(this)
     switch e.which
       when 37, 38, 39, 40 then @moveInTracker(e.which)
     e.preventDefault()
@@ -37,9 +39,6 @@ window.App.views.TrackerView = Backbone.View.extend
     @$el.append(table_content)
     @updateTablePlacement()
     return this
-
-  
-
 
   updateTablePlacement: ->
     console.log(this)
@@ -64,6 +63,8 @@ window.App.views.TrackerView = Backbone.View.extend
         @currentCol += 15 if @currentCol < 0
 
     @updateTablePlacement()
+
+
 
 class Mod
   # convert array of charcodes to sting
@@ -135,7 +136,7 @@ find_note = (period) ->
 
 
 clamp = (x, min, max) ->
-  Math.max(min, Math.max(max, x))
+  Math.max(min, Math.min(max, x))
 
 lerp = (a, b, f) ->
   a + f * (b - a)
@@ -167,24 +168,31 @@ class MixerVoice
   render: (buffer, offset, samples) ->
     return if !@sample
     
+
+    
     for i in [0...samples]
-      if !@div_count
+
+
+
+
+      if @div_count < 0
         @cur = 0.25 * @sample[@pos] / 128.0
           
         @pos++
         @pos -= @loop_len if @pos == @sample_len
-        @div_count = @period
+        @sample_rate  = 44100.0 / (7093789.2 / (@period * 4))
+        @div_count += @sample_rate
       buffer[i + offset] += @cur if (@pwm_count < @volume)
       @pwm_count = (@pwm_count + 1) & 0x3F
-      @div_count--
+      @div_count -= 1.0
 
   trigger: (sample, len, loop_len, offset) ->
     @sample = sample
-    
     @sample_len = len
+    #@sample_rate = 44100 / (7093789.2 / (@period * 2))
     @loop_len = loop_len
     @pos = Math.min(offset, @sample_len - 1)
-    console.log("sample trigger", @period)
+    #console.log("sample trigger", @period, @sample_rate)
 
 
 
@@ -195,79 +203,19 @@ class Mixer
   PAULARATE: 3740000
   OUTRATE: 44100
   constructor: ->
-    #console.log(@voices)
     @voices = []
     for i in [0..3]
       @voices.push(new MixerVoice())
-    @ring_buf = new Float32Array(2 * @RBSIZE)
-    @fir_mem = new Float32Array(2 * @FIR_WIDTH + 1)
-
-    # sF32 *FIRTable=FIRMem+FIR_WIDTH;
-    yscale = 1.0 * @OUTRATE/ @PAULARATE
-    xscale=Math.PI * yscale
-    for i in [0..(2*@FIR_WIDTH + 1)]
-      @fir_mem[i] = yscale * sinc(1.0 * (i - @FIR_WIDTH) * xscale) * hamming(1.0 * (i - @FIR_WIDTH) / @FIR_WIDTH - 1.0)
-
-    @write_pos = @FIR_WIDTH
-    @read_pos = 0
-    @read_frac = 0.0
     @master_volume = 0.66
     @master_separation = 0.5
 
-  calc_frag: (buf, offset, samples) ->
-    for i in [0..3]
-      if i==1 || i==2
-        @voices[i].render(buf, offset + @RBSIZE, samples)
+  render: (l_buf, r_buf, offset, samples) ->
+    for ch in [0..3]
+      if ch == 1 || ch == 2
+        @voices[ch].render(l_buf, offset, samples)
       else
-        @voices[i].render(buf, offset, samples)
-
-  calc: ->
-    real_read_pos = @read_pos - @FIR_WIDTH - 1
-    samples = real_read_pos - @write_pos & (@RBSIZE - 1)
-    todo = Math.min(samples, @RBSIZE - @write_pos)
-    @calc_frag(@ring_buf, @write_pos, todo)
-    if todo < samples
-      @write_pos = 0
-      todo = samples - todo
-      @calc_frag(@ring_buf, 0, todo)
-
-  render: (buffer, offset, samples) ->
-    step = 1.0 * @PAULARATE / @OUTRATE
-    pan = 0.5 * @master_separation
-    vm0 = @master_volume * Math.sqrt(pan)
-    vm1 = @master_volume * Math.sqrt(1 - pan)
-
-    for s in [0...samples]
-      @read_end = @read_pos + @FIR_WIDTH + 1
-      @read_end -= @RBSIZE if @write_pos < @read_pos
-      @calc() if @read_end > @write_pos
-      outl0 = 0.0
-      outl1 = 0.0
-      outr0 = 0.0
-      outr1 = 0.0
-
-      offs = (@read_pos - @FIR_WIDTH - 1) & (@RBSIZE - 1)
-      vl = @ring_buf[offs]
-      vr = @ring_buf[offs + @RBSIZE]
-
-      for i in [1...(2 * @FIR_WIDTH - 1)]
-        w = @fir_mem[i]
-        outl0+=vl*w
-        outr0+=vr*w
-        offs=(offs+1)&(@RBSIZE-1);
-        vl=@ring_buf[offs];
-        vr=@ring_buf[offs+@RBSIZE];
-        outl1+=vl*w
-        outr1+=vr*w
-      outl = lerp(outl0, outl1, @read_frac)
-      outr = lerp(outr0, outr1, @read_frac)
-      buffer[(s * 2) + offset] = vm0 * outl + vm1 * outr
-      buffer[(s * 2) + offset + 1] = vm1 * outl + vm0 * outr
-
-      @read_frac += step
-      rfi = Math.floor(@read_frac)
-      @read_pos = (@read_pos + rfi) & (@RBSIZE - 1)
-      @read_frac -= rfi
+        @voices[ch].render(r_buf, offset, samples)
+      
 
 
 class Player
@@ -318,10 +266,11 @@ class Player
 
   soundbridge_render: (bridge, length, channels) =>
     
-    buffer = new Float32Array(length * 2);
-    @render(buffer, length);
+    l_buf = new Float32Array(length);
+    r_buf = new Float32Array(length);
+    @render(l_buf, r_buf, length);
     for i in [0...length]
-      bridge.addToBuffer(buffer[i*2], buffer[i*2 + 1]);
+      bridge.addToBuffer(l_buf[i], r_buf[i]);
 
   calc_ptable: ->
     @PTABLE = []
@@ -333,7 +282,7 @@ class Player
       console.log(fac)
       periods = []
       for i in [0..59]
-        periods.push(Math.round(@BASE_PTABLE[i] * fac * 0.5))
+        periods.push(Math.round(@BASE_PTABLE[i] * fac))
       @PTABLE.push(periods)
     console.log(@PTABLE)  
   
@@ -383,7 +332,7 @@ class Player
     @delay = 0
 
   tick: ->
-    line = @module.patterns[@cur_pos][@cur_row]
+    line = @module.patterns[@module.pattern_table[@cur_pos]][@cur_row]
     ch = 0
     for note in line
       voice = @mixer.voices[ch]
@@ -539,14 +488,14 @@ class Player
 
     @cur_pos = 0 if @cur_pos >= @module.pattern_table_length
 
-  render: (buffer, len) ->
+  render: (l_buf, r_buf, len) ->
     offset = 0
     #console.log("player.render", buffer, len)
     while (len > 0)      
       todo = Math.min(len, @tr_counter)      
       if todo
-        @mixer.render(buffer, offset, todo)
-        offset += todo * 2
+        @mixer.render(l_buf, r_buf, offset, todo)
+        offset += todo
         len -= todo
         @tr_counter -= todo
       else
@@ -604,7 +553,7 @@ class Channel
 jQuery ->
   window.App.trackerView = new window.App.views.TrackerView()
   $('#trackerpane').append(window.App.trackerView.render().el)
-  # window.App.trackerView.updateTablePlacement()
+  window.App.trackerView.updateTablePlacement()
   $(window).keyup(window.App.trackerView.keyup_handler)
 
   $('#modfile').bind 'change', (e) -> 
