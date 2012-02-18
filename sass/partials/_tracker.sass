@@ -1,0 +1,24 @@
+
+#trackerpane
+  height: 480px
+  width: 1000px
+  border: 1px solid black
+  overflow: hidden
+  position: absolute
+  table
+    position: absolute
+    tr
+      &.active
+        background: red
+      td
+        padding: 2px 0
+        height: 40px
+        line-height: 40px
+        font-size: 30px
+        font-family: $standard-font
+        &.row-num
+          text-align: right
+        &.active
+          background: yellow
+        &.row-num, &.command-3, &.note
+          padding-right: 10px
