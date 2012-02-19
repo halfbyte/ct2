@@ -8,3 +8,11 @@ $standard-font: "C64 User Mono", "Menlo", "Courier New", monospaced;
 
 @import "partials/fonts";
 @import "partials/tracker";
+
+
+button#playcontrol {
+  color: #ccc;
+  &.active {
+    color: #000;
+  }
+}

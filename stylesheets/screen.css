@@ -111,3 +111,12 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 #trackerpane table tr td.row-num, #trackerpane table tr td.command-3, #trackerpane table tr td.note {
   padding-right: 10px;
 }
+
+/* line 13, ../sass/screen.scss */
+button#playcontrol {
+  color: #ccc;
+}
+/* line 15, ../sass/screen.scss */
+button#playcontrol.active {
+  color: #000;
+}

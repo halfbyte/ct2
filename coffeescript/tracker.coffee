@@ -1,3 +1,5 @@
+# @codekit-prepend "player.coffee"
+
 window.App = {views: {}}
 
 class window.App.views.TrackerView extends Backbone.View
@@ -68,14 +70,25 @@ jQuery ->
   window.App.trackerView.updateTablePlacement()
   $(window).keyup(window.App.trackerView.keyup_handler)
 
+
+  $('#playcontrol.active').live 'click', (e) ->    
+    button = $(@)
+    if button.data('playing')
+      window.Player.stop()
+      button.html('PLAY').data('playing', false);
+    else
+      window.Player.play()
+      button.html('STOP').data('playing', true);
+
   $('#modfile').bind 'change', (e) ->
-    console.log(e, this);
     file = $(this).get(0).files[0]
+
+    $('button#playcontrol.active')
 
     window.Player.load file, (err)->
       if err
         console.log('failing ...')
         console.log(err)
       else
-        console.log('playing ...')
-        window.Player.play()
+        $('#playcontrol').addClass('active').html('PLAY').data('playing', false);
+        
