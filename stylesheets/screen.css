@@ -75,7 +75,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   font-style: normal;
 }
 
-/* line 2, ../sass/partials/_tracker.sass */
+/* line 1, ../sass/partials/_tracker.sass */
 #trackerpane {
   height: 480px;
   width: 1000px;
@@ -83,15 +83,15 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   overflow: hidden;
   position: absolute;
 }
-/* line 8, ../sass/partials/_tracker.sass */
+/* line 7, ../sass/partials/_tracker.sass */
 #trackerpane table {
   position: absolute;
 }
-/* line 11, ../sass/partials/_tracker.sass */
+/* line 10, ../sass/partials/_tracker.sass */
 #trackerpane table tr.active {
   background: red;
 }
-/* line 13, ../sass/partials/_tracker.sass */
+/* line 12, ../sass/partials/_tracker.sass */
 #trackerpane table tr td {
   padding: 2px 0;
   height: 40px;
@@ -99,15 +99,15 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
   font-size: 30px;
   font-family: "C64 User Mono", "Menlo", "Courier New", monospaced;
 }
-/* line 19, ../sass/partials/_tracker.sass */
+/* line 18, ../sass/partials/_tracker.sass */
 #trackerpane table tr td.row-num {
   text-align: right;
 }
-/* line 21, ../sass/partials/_tracker.sass */
+/* line 20, ../sass/partials/_tracker.sass */
 #trackerpane table tr td.active {
   background: yellow;
 }
-/* line 23, ../sass/partials/_tracker.sass */
+/* line 22, ../sass/partials/_tracker.sass */
 #trackerpane table tr td.row-num, #trackerpane table tr td.command-3, #trackerpane table tr td.note {
   padding-right: 10px;
 }
