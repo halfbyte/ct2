@@ -1,4 +1,7 @@
 describe 'Player', ->
+  beforeEach ->
+    window.SoundBridge = -> 'mockSoundBridge'
+
   it 'loads a file', ->
     expect(Player.load('file.mod')).toEqual('LOADING file.mod')
 

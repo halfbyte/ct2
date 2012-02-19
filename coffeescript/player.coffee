@@ -244,7 +244,6 @@ class Player
     "LOADING #{file}"
 
   play: ->
-    console.log 'PLAYING'
     @soundbridge = SoundBridge(2, 44100, '/javascripts/vendor/');
     window.setTimeout(
       =>
@@ -252,6 +251,7 @@ class Player
         @soundbridge.play()
       1000
     )
+    'PLAYING'
 
   stop: ->
     console.log 'STOPPING'
