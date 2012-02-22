@@ -1,2 +1,4 @@
-min/
+coffeescript/*.js
+spec/*.js
 .sass-cache
+*-ck.js

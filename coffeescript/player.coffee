@@ -1,10 +1,16 @@
 class Mod
   # convert array of charcodes to sting
-  # seems to magically work.
+  # seems to magically work.  
+  NOTES: ['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-', 'B#']
   atos: (a) ->
     s = String.fromCharCode(a...)
   signed_nybble: (a) ->
     if a >= 8 then a-16 else a
+  note_from_text: (note) ->
+    return "---" if note == 0
+    oct = Math.floor((note - 1) / 12)
+    @NOTES[(note - 1) % 12] + oct
+
 
   constructor: (data) ->
     @samples = []
@@ -36,11 +42,14 @@ class Mod
           step = []
           for c in [0..3]
             note = {}
-            note.period = (pattern_data[(s * 16) + (c * 4)] & 0x0F << 8) + (pattern_data[(s * 16) + (c * 4) + 1] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 1] & 0x0F)
+            note.raw_data = [pattern_data[(s * 16) + (c * 4)], pattern_data[(s * 16) + (c * 4) + 1], pattern_data[(s * 16) + (c * 4) + 2], pattern_data[(s * 16) + (c * 4) + 3]] 
+            note.period = ((pattern_data[(s * 16) + (c * 4)] & 0x0F) << 8) + (pattern_data[(s * 16) + (c * 4) + 1] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 1] & 0x0F)
             note.note = find_note(note.period)
+            note.text = @note_from_text(note.note)
             note.sample = (pattern_data[(s * 16) + (c * 4)] & 0xF0) + ((pattern_data[(s * 16) + (c * 4) + 2] & 0xF0) >> 4)
             note.command = (pattern_data[(s * 16) + (c * 4) + 2] & 0x0F)
             note.command_params = (pattern_data[(s * 16) + (c * 4) + 3] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 3] & 0x0F)
+            note.hex_command_params = note.command_params.toString(16)
 
             step.push(note)
           pattern.push(step)
@@ -58,7 +67,7 @@ find_note = (period) ->
   bestd = Math.abs(period - Player::BASE_PTABLE[0])
   if (period)
     for i in [1..60]
-      d = Math.abs(period-Player::BASE_PTABLE[i])
+      d = Math.abs(period - Player::BASE_PTABLE[i])
       if d < bestd
         bestd = d
         note = i
@@ -85,52 +94,49 @@ hamming = (x) ->
     0
 
 class MixerVoice
-  sample_len: 0
-  loop_len: 0
-  period: 65535
-  volume: 0
-  pos: 0
-  pwm_count: 0
-  div_count: 0
-  cur: 0
-  cur_i: 0
-  sample: null
+
+
+  constructor: ->
+    @sample_len = 0
+    @loop_len = 0
+    @period = 65535
+    @volume = 0
+    @pos =  0.0
+    @sample = null
+
 
   render: (buffer, offset, samples) ->
     return if !@sample
 
 
-
     for i in [0...samples]
 
+      @pos += (3740000.0/ @period) /(44100.0)
 
+      int_pos = Math.floor(@pos)
+      if int_pos >= @sample_len 
+        # console.log("LOOOP", @loop_len)
+        @pos -= @loop_len
+        int_pos -= @loop_len
 
+      next_pos = int_pos + 1
+      next_pos -= @loop_len if next_pos >= @sample_len
 
-      if @div_count < 0
-        @cur = 0.25 * @sample[@pos] / 128.0
-
-        @pos++
-        @pos -= @loop_len if @pos == @sample_len
-        @sample_rate  = 44100.0 / (7093789.2 / (@period * 4))
-        @div_count += @sample_rate
-      buffer[i + offset] += @cur if (@pwm_count < @volume)
-      @pwm_count = (@pwm_count + 1) & 0x3F
-      @div_count -= 1.0
+      next_fac = @pos - Math.floor(@pos)
+      inv_fac = 1.0 - next_fac
+      sample = @sample[int_pos] * inv_fac + @sample[next_pos] * next_fac
+      buffer[i + offset] += (sample / 128.0 * (@volume / 64.0)) * 0.5
 
   trigger: (sample, len, loop_len, offset) ->
     @sample = sample
     @sample_len = len
-    #@sample_rate = 44100 / (7093789.2 / (@period * 2))
     @loop_len = loop_len
     @pos = Math.min(offset, @sample_len - 1)
-    #console.log("sample trigger", @period, @sample_rate)
 
 
 
 class Mixer
 
-  RBSIZE: 4096
-  FIR_WIDTH: 512
   PAULARATE: 3740000
   OUTRATE: 44100
   constructor: ->
@@ -148,28 +154,30 @@ class Mixer
         @voices[ch].render(r_buf, offset, samples)
 
 class Channel
-  note: 0
-  period: 0
-  sample: 0
-  finetune: 0
-  volume: 0
-  fxbuf: new Int16Array(16)
-  fxbuf_14: new Int16Array(16)
-  loopstart: 0
-  loopcount: 0
-  retrig_count: 0
-  vib_wave: 0
-  vib_retr: 0
-  vib_pos: 0
-  vib_ampl: 0
-  vib_speed: 0
-  trem_wave: 0
-  trem_retr: 0
-  trem_pos: 0
-  trem_ampl: 0
-  trem_speed: 0
-
   constructor: (@player) ->
+    @note = 0
+    @period = 0
+    @fxbuf = new Int16Array(16)
+    @fxbuf_14 = new Int16Array(16)
+    @sample = 0
+    @finetune = 0
+    @volume = 0
+    @loopstart = 0
+    @loopcount = 0
+    @retrig_count = 0
+    @vib_wave = 0
+    @vib_retr = 0
+    @vib_pos = 0
+    @vib_ampl = 0
+    @vib_speed  = 0
+    @trem_wave = 0
+    @trem_retr = 0
+    @trem_pos = 0
+    @trem_ampl = 0
+    @trem_speed = 0
+
+  to_unsigned: (n) ->
+    if n < 0 then n + 16 else n
 
   get_period: (offs = 0, fineoffs = 0) ->
     ft = @finetune + fineoffs
@@ -180,7 +188,7 @@ class Channel
       offs--
       ft += 16
     if @note
-      @player.PTABLE[ ft & 0x0f ][clamp(@note+offs-1,0,59)]
+      @player.PTABLE[ @to_unsigned(ft) & 0x0f ][clamp(@note+offs-1,0,59)]
     else
       0
   set_period: (offs = 0, fineoffs = 0) ->
@@ -200,7 +208,9 @@ class Player
     @mixer = new Mixer()
     @calc_ptable()
     @calc_vibtable()
+    @bpm = 125
     @reset()
+
 
 
   BASE_PTABLE: [
@@ -236,7 +246,8 @@ class Player
         console.log(result)
 
         @module = new Mod(result);
-        console.log(@module)
+        console.log("module", @module)
+        @reset()
 
         callback()
 
@@ -276,7 +287,7 @@ class Player
       for i in [0..59]
         periods.push(Math.round(@BASE_PTABLE[i] * fac))
       @PTABLE.push(periods)
-    #console.log(@PTABLE)
+    console.log(@PTABLE)
     @PTABLE
 
   calc_vibtable: ->
@@ -296,12 +307,15 @@ class Player
         @VIB_TABLE[2][ampl].push(Math.floor(scale * (if (x<32) then 1 else -1) + shift))
 
   calc_tick_rate: (bpm) ->
+    @bpm = bpm
     @tick_rate = (125 * @OUTRATE) / (bpm * @OUTFPS)
-    #console.log("TICK RATE", @tick_rate)
+    console.log("TICK RATE", @tick_rate)
 
   trig_note: (ch, note) ->
+
     channel = @channels[ch]
     voice = @mixer.voices[ch]
+    #console.log("TRIG: " + ch, note, channel.sample)
     sample = @module.samples[channel.sample - 1]
     offset = 0
     offset = channel.fxbuf[9] << 8 if note.command == 9
@@ -311,6 +325,7 @@ class Player
         voice.trigger(sample.data, sample.repeat + sample.replen, sample.replen, offset)
       else
         voice.trigger(sample.data, sample.length, 1, offset)
+        console.log(channel.sample, sample.length, offset)
 
       channel.vib_pos = 0 if !channel.vib_retr
       channel.trem_pos = 0 if !channel.trem_retr
@@ -339,7 +354,7 @@ class Player
           channel.volume = @module.samples[note.sample - 1].volume
         if note.command_params
           channel.fxbuf[note.command] = note.command_params
-
+          
         if note.note && (note.command != 14 || ((note.command_params >> 4) != 13))
 
           channel.note = note.note
@@ -411,8 +426,13 @@ class Player
               channel.volume = Math.min(channel.volume + (channel.fxbuf[5] >> 4), 64)
             else
               channel.volume = Math.max(channel.volume - (channel.fxbuf[5] & 0x0f), 0)
-          when 5, 3
-            np = channel.get_period
+            np = channel.get_period()
+            if channel.period > np
+              channel.period = Math.max(channel.period - channel.fxbuf[3], np)
+            else if channel.period < np
+              channel.period = Math.min(channel.period + channel.fxbuf[3], np)
+          when 3
+            np = channel.get_period()
             if channel.period > np
               channel.period = Math.max(channel.period - channel.fxbuf[3], np)
             else if channel.period < np
@@ -423,14 +443,19 @@ class Player
               channel.volume = Math.min(channel.volume + (channel.fxbuf[6] >> 4), 64)
             else
               channel.volume = Math.max(channel.volume - (channel.fxbuf[6] & 0x0F), 0)
-          when 4, 6
+            channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos])
+            channel.vib_pos = (channel.vib_pos + channel.vib_speed) & 0x3f
+
+
+          when 4
             channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos])
             channel.vib_pos = (channel.vib_pos + channel.vib_speed) & 0x3f
           when 7
             @trem_vol = @VIB_TABLE[channel.trem_wave][channel.trem_ampl][channel.trem_pos]
             channel.trem_pos = (channel.trem_pos + c.trem_speed) & 0x3f
           when 10
-            if channel.fxbuf[10] & 0xF0
+            
+            if channel.fxbuf[10] & 0xF0            
               channel.volume = Math.min(channel.volume + (channel.fxbuf[10] >> 4), 64)
             else
               channel.volume = Math.max(channel.volume - (channel.fxbuf[10] & 0x0f), 0)
@@ -449,7 +474,7 @@ class Player
                   channel.loopstart = @cur_row
                 else if (@cur_tick == @speed - 1)
                   if (channel.loopcount < fxpl)
-                    @cur_row = channel.loopstart -1
+                    @cur_row = channel.loopstart - 1
                     channel.loopcount++
                   else
                     channel.loopcount = 0
@@ -462,9 +487,11 @@ class Player
                 if @cur_tick == channel.fxbuf_14[12]
                   channel.volume = 0
               when 13
+                channel.note = note.note
                 @trig_note(ch, note) if @cur_tick == channel.fxbuf_14[13]
 
       voice.volume = clamp(channel.volume + trem_vol, 0, 64)
+
       voice.period = channel.period
 
       ch++
@@ -480,6 +507,9 @@ class Player
       @cur_pos++
 
     @cur_pos = 0 if @cur_pos >= @module.pattern_table_length
+    $('#debug-out').html("speed: " + @speed + "bpm: " + @bpm + "row:" + @cur_row + " V1: " + @mixer.voices[0].volume + " V2:" + @mixer.voices[1].volume + " V3:" + @mixer.voices[2].volume + " V4:" + @mixer.voices[3].volume)
+
+
 
   render: (l_buf, r_buf, len) ->
     offset = 0
@@ -493,8 +523,9 @@ class Player
         @tr_counter -= todo
       else
         @tick()
-        @tr_counter = @tick_rate
+        @tr_counter = Math.floor(@tick_rate)
     #console.log("player.render.done")
+
 
 
 # give the app a single instance only

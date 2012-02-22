@@ -83,7 +83,7 @@ jQuery ->
   $('#modfile').bind 'change', (e) ->
     file = $(this).get(0).files[0]
 
-    $('button#playcontrol.active')
+    $('button #playcontrol.active')
 
     window.Player.load file, (err)->
       if err
