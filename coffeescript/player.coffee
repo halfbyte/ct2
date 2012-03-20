@@ -265,7 +265,14 @@ class Player
 
   play: ->
     @playing = true
+    @pattern_only = false
     console.log 'PLAYING'
+
+  # play current patter
+  play_pattern: ->
+    @pattern_only = true
+    @playing = true
+    console.log 'PLAYING PATTERN'
 
   stop: ->
     @playing = false
@@ -529,7 +536,8 @@ class Player
 
     if @cur_row >= 64
       @cur_row = 0
-      @cur_pos++
+      if not @pattern_only
+        @cur_pos++ 
 
     @cur_pos = 0 if @cur_pos >= @module.pattern_table_length
     
