@@ -34,7 +34,7 @@ class Mod
       @pattern_table_length = pattern_data[0]
       @pattern_table = new Uint8Array(data, 952, 128)
       @num_patterns = _.max(@pattern_table)
-      #console.log(module)
+      
       for p in [0..@num_patterns]
         pattern = []
         pattern_data = new Uint8Array(data, 1084 + (p * 1024), 1024)
@@ -45,7 +45,7 @@ class Mod
             note.raw_data = [pattern_data[(s * 16) + (c * 4)], pattern_data[(s * 16) + (c * 4) + 1], pattern_data[(s * 16) + (c * 4) + 2], pattern_data[(s * 16) + (c * 4) + 3]] 
             note.period = ((pattern_data[(s * 16) + (c * 4)] & 0x0F) << 8) + (pattern_data[(s * 16) + (c * 4) + 1] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 1] & 0x0F)
             note.note = find_note(note.period)
-            note.text = @note_from_text(note.note)
+            note.note_text = @note_from_text(note.note)
             note.sample = (pattern_data[(s * 16) + (c * 4)] & 0xF0) + ((pattern_data[(s * 16) + (c * 4) + 2] & 0xF0) >> 4)
             note.command = (pattern_data[(s * 16) + (c * 4) + 2] & 0x0F)
             note.command_params = (pattern_data[(s * 16) + (c * 4) + 3] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 3] & 0x0F)
@@ -115,7 +115,7 @@ class MixerVoice
 
       int_pos = Math.floor(@pos)
       if int_pos >= @sample_len 
-        # console.log("LOOOP", @loop_len)
+        
         @pos -= @loop_len
         int_pos -= @loop_len
 
@@ -210,6 +210,15 @@ class Player
     @calc_vibtable()
     @bpm = 125
     @reset()
+    @playing = false
+    @soundbridge = SoundBridge(2, 48000, '/javascripts/vendor/');
+    window.setTimeout(
+      =>
+        @soundbridge.setCallback(@soundbridge_render)
+        @soundbridge.play()
+      1000
+    )
+
 
 
 
@@ -243,10 +252,10 @@ class Player
     reader.onloadend = (evt)=>
       if (evt.target.readyState == FileReader.DONE)
         result = evt.target.result;
-        console.log(result)
+        
 
         @module = new Mod(result);
-        console.log("module", @module)
+        
         @reset()
 
         callback()
@@ -255,21 +264,15 @@ class Player
     "LOADING #{file}"
 
   play: ->
-    @soundbridge = SoundBridge(2, 44100, '/javascripts/vendor/');
-    window.setTimeout(
-      =>
-        @soundbridge.setCallback(@soundbridge_render)
-        @soundbridge.play()
-      1000
-    )
-    'PLAYING'
+    @playing = true
+    console.log 'PLAYING'
 
   stop: ->
+    @playing = false
     console.log 'STOPPING'
-    @soundbridge.stop()
 
   soundbridge_render: (bridge, length, channels) =>
-
+    
     l_buf = new Float32Array(length);
     r_buf = new Float32Array(length);
     @render(l_buf, r_buf, length);
@@ -280,14 +283,14 @@ class Player
     @PTABLE = []
     for ft in [0..16]
       rft = -(if ft >= 8 then ft - 16 else ft)
-      #console.log rft
+      
       fac = Math.pow(2.0, rft / (12.0 * 16.0))
-      #console.log fac
+      
       periods = []
       for i in [0..59]
         periods.push(Math.round(@BASE_PTABLE[i] * fac))
       @PTABLE.push(periods)
-    console.log(@PTABLE)
+    
     @PTABLE
 
   calc_vibtable: ->
@@ -309,13 +312,29 @@ class Player
   calc_tick_rate: (bpm) ->
     @bpm = bpm
     @tick_rate = (125 * @OUTRATE) / (bpm * @OUTFPS)
-    console.log("TICK RATE", @tick_rate)
+  
+  trig_single_note: (ch, sample, note) ->
+    channel = @channels[ch]
+    voice = @mixer.voices[ch]
+    sample = @module.samples[sample]
+    offset = 0
+    channel.note = note
+    channel.set_period()
+    voice.period = channel.period
+    channel.volume = 64
+    voice.volume = 64
+    if sample.replen > 2
+      voice.trigger(sample.data, sample.repeat + sample.replen, sample.replen, offset)
+    else
+      voice.trigger(sample.data, sample.length, 1, offset)
+    channel.vib_pos = 0    
+    channel.trem_pos = 0
 
   trig_note: (ch, note) ->
 
     channel = @channels[ch]
     voice = @mixer.voices[ch]
-    #console.log("TRIG: " + ch, note, channel.sample)
+    
     sample = @module.samples[channel.sample - 1]
     offset = 0
     offset = channel.fxbuf[9] << 8 if note.command == 9
@@ -325,7 +344,7 @@ class Player
         voice.trigger(sample.data, sample.repeat + sample.replen, sample.replen, offset)
       else
         voice.trigger(sample.data, sample.length, 1, offset)
-        console.log(channel.sample, sample.length, offset)
+        
 
       channel.vib_pos = 0 if !channel.vib_retr
       channel.trem_pos = 0 if !channel.trem_retr
@@ -348,6 +367,7 @@ class Player
       fxpl = note.command_params & 0x0F
       trem_vol = 0
       if (!@cur_tick)
+        
         if note.sample
           channel.sample = note.sample
           channel.finetune = @module.samples[note.sample - 1].finetune
@@ -359,6 +379,8 @@ class Player
 
           channel.note = note.note
           @trig_note(ch, note)
+          
+          
 
         switch(note.command)
           when 4, 6
@@ -507,13 +529,14 @@ class Player
       @cur_pos++
 
     @cur_pos = 0 if @cur_pos >= @module.pattern_table_length
-    $('#debug-out').html("speed: " + @speed + "bpm: " + @bpm + "row:" + @cur_row + " V1: " + @mixer.voices[0].volume + " V2:" + @mixer.voices[1].volume + " V3:" + @mixer.voices[2].volume + " V4:" + @mixer.voices[3].volume)
+    
 
 
 
   render: (l_buf, r_buf, len) ->
+    
     offset = 0
-    #console.log("player.render", buffer, len)
+    
     while (len > 0)
       todo = Math.min(len, @tr_counter)
       if todo
@@ -522,9 +545,9 @@ class Player
         len -= todo
         @tr_counter -= todo
       else
-        @tick()
+        @tick() if @playing
         @tr_counter = Math.floor(@tick_rate)
-    #console.log("player.render.done")
+    
 
 
 

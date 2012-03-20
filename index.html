@@ -11,14 +11,14 @@
   	<script type="text/javascript" src="javascripts/vendor/backbone-ck.js"></script>
   	<script type="text/javascript" src="coffeescript/tracker.js"></script>
 
-    <script type="text/x-javascript-template">
-      <tr>
+    <script type="text/x-javascript-template" id="tracker-cell">
+      <span class="note">{{note_text}}{{hiNyb sample}}{{loNyb sample}}{{loNyb command}}{{hiNyb command_params}}{{loNyb command_params}}</span>
     </script>
   </head>
   <body>
     <label>Load MOD File <input id="modfile" type="file"/></label>
     <button id="playcontrol">NOT LOADED</button>
     <div id="debug-out"></div>
-    <!--  <div id="trackerpane"></div> -->
+    <div id="trackerpane"></div>
   </body>
 </html>

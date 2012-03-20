@@ -1,23 +1,49 @@
+@import "compass/utilities"
+
+
+body
+  background: transparent url(/images/protracker_bg.png) top left no-repeat
+
 #trackerpane
-  height: 480px
-  width: 1000px
-  border: 1px solid black
-  overflow: hidden
   position: absolute
-  table
-    position: absolute
-    tr
-      &.active
-        background: red
-      td
-        padding: 2px 0
-        height: 40px
-        line-height: 40px
-        font-size: 30px
-        font-family: $standard-font
-        &.row-num
-          text-align: right
+  top: 416px
+  left: 12px
+  height: 340px
+  width: 940px  
+  overflow: hidden
+
+  .tracker
+    width: 1000px
+    font-family: $standard-font
+    font-size: 1.2em
+    letter-spacing: 0.2em
+    .pattern
+      position: absolute
+      top: 0
+      left: 0    
+      .row
+        +clearfix
+        color: #fff
+        padding: 3px 5px
+        height: 15px
+        line-height: 15px
         &.active
-          background: yellow
-        &.row-num, &.command-3, &.note
-          padding-right: 10px
+          
+          // font-size: 1.5em
+          color: #000
+          padding: 5px 5px
+          height: 36px
+          line-height: 36px
+        .row-num
+          float: left
+          width: 50px
+          margin-right: 30px
+          text-align: right
+        .cell
+          float: left
+          width: 200px
+          margin-right: 16px
+          &:last-child
+            margin-right: 0
+          
+          

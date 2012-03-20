@@ -2,74 +2,105 @@
 
 window.App = {views: {}}
 
-class window.App.views.TrackerView extends Backbone.View
-  tagName: 'table'
-  NOTES: ['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-', 'B#']
+Handlebars.registerHelper 'hiNyb', (obj) ->
+  ((obj >> 4) & 0xF).toString(16).toUpperCase()
 
-  current_pattern: 0
-  attrs:
-    cellspacing: 0
-    cellpadding: 0
+Handlebars.registerHelper 'loNyb', (obj) ->
+  (obj & 0xF).toString(16).toUpperCase()
 
-  initialize: () ->
-    console.log("initialized")
-    @currentRow = 0
-    @currentCol = 0
-
-  set_data: (data) ->
-    @module = data
-
-  keyup_handler: (e) =>
-    console.log(this)
-    switch e.which
-      when 37, 38, 39, 40 then @moveInTracker(e.which)
-    e.preventDefault()
+class window.App.views.CellView extends Backbone.View
+  className: 'cell'
+  
+  initialize: ->
+    @template = Handlebars.compile($('#tracker-cell').html())
 
   render: ->
-    table_content = ""
-    for i in [0..63]
-      table_content += "<tr id='row-" + i + "'>"
-      table_content += "<td class='row-num'>" + i + "</td>"
-      table_content += "<td class='note'>C-3</td><td class='command-1'>A</td><td class='command-2'>0</td><td class='command-3'>1</td>"
-      table_content += "<td class='note'>C-3</td><td class='command-1'>A</td><td class='command-2'>0</td><td class='command-3'>1</td>"
-      table_content += "<td class='note'>C-3</td><td class='command-1'>A</td><td class='command-2'>0</td><td class='command-3'>1</td>"
-      table_content += "<td class='note'>C-3</td><td class='command-1'>A</td><td class='command-2'>0</td><td class='command-3'>1</td>"
-      table_content += "</tr>";
-    @$el.append(table_content)
-    @updateTablePlacement()
-    return this
+    @$el.html(@template(@options.cell))
+    this
 
-  updateTablePlacement: ->
-    console.log(this)
-    $('tr,td', @table).removeClass('active')
-    row = $('tr:nth-child(' + (@currentRow + 1) + ')', @table)
-    row.addClass('active')
-    col = $('td:nth-child(' + (@currentCol+2) + ')', row)
-    col.addClass('active')
+class window.App.views.RowView extends Backbone.View
+  className: 'row'
+  initialize: ->
+    
+    @cells = for cell in @options.row
+      new window.App.views.CellView({cell: cell})
+  render: ->
+    cell_elements = for cell in @cells
+      cell.render().el
+    cell_elements.unshift(this.make('div', {class: 'row-num'}, @options.row_num.toString(10)))
+    @$el.html(cell_elements)
+    
+    this
 
-    y = 44 * (@currentRow - 5) * -1
-    @$el.css('top', y)
+class window.App.views.PatternView extends Backbone.View
+  className: 'pattern',
+  initialize: ->
+    @current_row = 0
+    row_num = 0
+    @rows = for row in @options.pattern
+      row = new window.App.views.RowView({row: row, row_num: row_num})
+      row_num++
+      row
+      
+  change_row_by: (n) ->
+    @change_to_row(@current_row + n)
+    
+  change_to_row: (row) ->
+    @current_row = row
+    @current_row = 63 if @current_row < 0
+    @current_row = 0 if @current_row > 63
+    @$('.row').removeClass('active')
+    @rows[@current_row].$el.addClass('active')
+    this.$el.css('top', (@current_row - 7) * -21)
 
-  moveInTracker: (c) ->
-    switch c
-      when 40 then @currentRow = (@currentRow + 1) % 64
+  render: ->
+    row_elements = for row in @rows
+      row.render().el
+    @$el.html(row_elements)
+    @change_to_row(@current_row)
+    this
+
+class window.App.views.TrackerView extends Backbone.View
+  className: 'tracker'
+
+  current_pos: 0
+
+  initialize: ->
+    @current_pos = 0
+    @patterns = []
+  move_in_tracker: (key) ->
+    switch key
+      when 40
+        @current_pattern().change_row_by(1)
       when 38
-        @currentRow--
-        @currentRow += 63 if @currentRow < 0
-      when 39 then @currentCol = (@currentCol + 1) % 16
-      when 37
-        @currentCol--;
-        @currentCol += 15 if @currentCol < 0
+        @current_pattern().change_row_by(-1)
 
-    @updateTablePlacement()
+  move_to: (pos, row) =>
+    if pos != @current_pos
+      @change_pattern(pos)
+    @current_pattern().change_to_row(row)
 
+  keyup_handler: (e) =>
+    switch e.which
+      when 37, 38, 39, 40 then @move_in_tracker(e.which)
+    e.preventDefault()
+
+  current_pattern: ->
+    p = @options.module.pattern_table[@current_pos]
+    @patterns[p]
+
+  change_pattern: (pos) =>
+    @current_pos = pos
+    @render()
+
+  render: ->
+    p = @options.module.pattern_table[@current_pos]
+    @patterns[p] ?= new window.App.views.PatternView({pattern: @options.module.patterns[p]})
+    @$el.html(@patterns[p].render().el)
+    this
+  
 
 jQuery ->
-  window.App.trackerView = new window.App.views.TrackerView()
-  $('#trackerpane').append(window.App.trackerView.render().el)
-  window.App.trackerView.updateTablePlacement()
-  $(window).keyup(window.App.trackerView.keyup_handler)
-
 
   $('#playcontrol.active').live 'click', (e) ->    
     button = $(@)
@@ -90,5 +121,18 @@ jQuery ->
         console.log('failing ...')
         console.log(err)
       else
+        window.App.trackerView = new window.App.views.TrackerView({module: window.Player.module})
+        $('#trackerpane').append(window.App.trackerView.render().el)
         $('#playcontrol').addClass('active').html('PLAY').data('playing', false);
+        $(window).keyup(window.App.trackerView.keyup_handler);
+        window.setInterval(
+          ->
+            window.App.trackerView.move_to(window.Player.cur_pos, window.Player.cur_row)
+          40
+        )
+            
+          
+        
+          
+
         
