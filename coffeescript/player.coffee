@@ -111,7 +111,7 @@ class MixerVoice
 
     for i in [0...samples]
 
-      @pos += (3740000.0/ @period) /(44100.0)
+      @pos += (3740000.0/ @period) /(48000.0)
 
       int_pos = Math.floor(@pos)
       if int_pos >= @sample_len 
@@ -138,7 +138,7 @@ class MixerVoice
 class Mixer
 
   PAULARATE: 3740000
-  OUTRATE: 44100
+  OUTRATE: 48000
   constructor: ->
     @voices = []
     for i in [0..3]
@@ -228,7 +228,7 @@ class Player
     428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226,
     214, 202, 190, 180, 170, 160, 151, 143, 135, 127, 120, 113,
     107, 101,  95,  90,  85,  80,  76,  71,  67,  64,  60,  57]
-  OUTRATE: 44100
+  OUTRATE: 48000
   OUTFPS: 50
 
   channels: []
@@ -269,6 +269,9 @@ class Player
 
   stop: ->
     @playing = false
+    for ch in [0..3]
+      @mixer.voices[ch].volume = 0
+      @channels[ch].volume = 0
     console.log 'STOPPING'
 
   soundbridge_render: (bridge, length, channels) =>
@@ -386,11 +389,11 @@ class Player
           when 4, 6
             channel.vib_ampl = channel.fxbuf[4] & 0x0f if channel.fxbuf[4] & 0x0f
             channel.vib_speed = channel.fxbuf[4] >> 4 if channel.fxbuf[4] & 0xf0
-            channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos])
+            channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos]) if channel.vib_ampl
           when 7
             channel.trem_ampl = channel.fxbuf[7] & 0x0f if channel.fxbuf[7] & 0x0f
             channel.trem_speed = channel.fxbuf[7] >> 4 if channel.fxbuf[7] & 0xf0
-            trem_vol = @VIB_TABLE[channel.trem_wave][channel.trem_ampl - 1][channel.trem_pos]
+            trem_vol = @VIB_TABLE[channel.trem_wave][channel.trem_ampl - 1][channel.trem_pos] if channel.trem_ampl
           when 12
             channel.volume = clamp(note.command_params, 0, 64)
           when 14
@@ -465,12 +468,12 @@ class Player
               channel.volume = Math.min(channel.volume + (channel.fxbuf[6] >> 4), 64)
             else
               channel.volume = Math.max(channel.volume - (channel.fxbuf[6] & 0x0F), 0)
-            channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos])
+            channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos]) if channel.vib_ampl
             channel.vib_pos = (channel.vib_pos + channel.vib_speed) & 0x3f
 
 
           when 4
-            channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos])
+            channel.set_period(0, @VIB_TABLE[channel.vib_wave][channel.vib_ampl - 1][channel.vib_pos]) if channel.vib_ampl
             channel.vib_pos = (channel.vib_pos + channel.vib_speed) & 0x3f
           when 7
             @trem_vol = @VIB_TABLE[channel.trem_wave][channel.trem_ampl][channel.trem_pos]
