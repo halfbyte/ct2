@@ -1,0 +1,23 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: ct2_development
+  pool: 5
+  username: postgres
+  password: postgres
+  host: localhost
+  port: 5432
+  # template: template_postgis
+  min_messages: WARNING
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: ct2_test
+  pool: 5
+  username: postgres
+  password: postgres
+  host: localhost
+  port: 5432
+  # template: template_postgis
+  min_messages: WARNING
