@@ -68,6 +68,14 @@ class window.App.views.TrackerView extends Backbone.View
   initialize: ->
     @current_pos = 0
     @patterns = []
+    @mode = 'idle'
+
+
+  set_mode: (mode) ->
+    @mode = mode
+    $('body').setMode(mode, 'mode');
+
+
   move_in_tracker: (key) ->
     switch key
       when 40
@@ -106,9 +114,11 @@ jQuery ->
     button = $(@)
     if button.data('playing')
       window.Player.stop()
+      window.App.trackerView.set_mode('idle');
       button.html('PLAY').data('playing', false);
     else
       window.Player.play()
+      window.App.trackerView.set_mode('playing');
       button.html('STOP').data('playing', true);
 
   $('#modfile').bind 'change', (e) ->
@@ -127,7 +137,8 @@ jQuery ->
         $(window).keyup(window.App.trackerView.keyup_handler);
         window.setInterval(
           ->
-            window.App.trackerView.move_to(window.Player.cur_pos, window.Player.cur_row)
+            if window.App.trackerView.mode == 'play'
+              window.App.trackerView.move_to(window.Player.cur_pos, window.Player.cur_row)
           40
         )
             

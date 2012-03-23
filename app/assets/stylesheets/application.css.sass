@@ -4,11 +4,21 @@
 @import "compass/reset"
 @import "compass/utilities"
 @import "compass/css3"
- 
+
 +font-face("C64 User Mono", font-files("C64_User_Mono_v1.0-STYLE.woff", "C64_User_Mono_v1.0-STYLE.ttf"), "C64_User_Mono_v1.0-STYLE.eot", 400, normal)
  
+
+body
+  cursor: url('pointer-gray.png'), auto
+body.playing_mode
+  cursor: url('pointer-blue.png'), auto
+body.editing_mode
+  cursor: url('pointer-yellow.png'), auto
+
+
 body
   background: transparent url('protracker_bg.png') top left no-repeat
+
 
 $standard-font: "C64 User Mono", "Menlo", "Courier New", monospaced
 

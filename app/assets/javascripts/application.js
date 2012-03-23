@@ -10,12 +10,14 @@
 // WARNING: THE FIRST BLANK LINE MARKS THE END OF WHAT'S TO BE PROCESSED, ANY BLANK LINE SHOULD
 // GO AFTER THE REQUIRES BELOW.
 //
-//= require vendor/jquery
-//= require vendor/json2
-//= require vendor/underscore
-//= require vendor/handlebars
-//= require vendor/soundbridge
-//= require vendor/backbone
+//= require jquery
+//= require json2
+//= require underscore
+//= require handlebars
+//= require soundbridge
+//= require backbone
+
+//= require jquery_extensions
 
 //= require player
 //= require tracker
