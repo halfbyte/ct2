@@ -11,13 +11,14 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120323164750) do
+ActiveRecord::Schema.define(:version => 20120324195323) do
 
   create_table "mods", :force => true do |t|
     t.string   "title"
     t.boolean  "is_public"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.string   "mod_file"
   end
 
 end

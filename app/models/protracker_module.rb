@@ -1,4 +1,5 @@
- class Sample < BinData::Record
+require 'base64'
+class Sample < BinData::Record
   endian :big
   string :name, :length => 22, :trim_padding => true
   uint16 :len
@@ -46,17 +47,20 @@ class ProtrackerModule < BinData::Record
   endian :big
   string :name, :length => 20, :trim_padding => true
   array :samples, :type => ::Sample, :initial_length => 31
-  uint8 :num_patterns
+  uint8 :pattern_table_length
   uint8 :unused
-  array :pattern_table, :type => :uint8, :initial_length =>  128
+  array :pattern_table, :type => :uint8, :initial_length =>  :pattern_table_length
   string :cookie, :length => 4
-  array :patterns, :type => ::Pattern, :initial_length => lambda { self.max_pattern_index + 1 }
-  array :sample_data, :initial_length => lambda { self.samples.length } do
-    string :read_length => lambda { self.samples[index].len * 2 }
+  array :patterns, :type => ::Pattern, :initial_length => lambda { pattern_table.inject(0) {|m,p| p > m ? p : m} + 1 }
+  array :sample_data, :initial_length => lambda { samples.length } do
+    string :read_length => lambda { samples[index].len * 2 }
   end
 
-  def max_pattern_index
-    self.pattern_table.inject(0) {|m,p| p > m ? p : m}
+  def encoded_sample_data
+    sample_data.map do |sd|
+      Base64.strict_encode64(sd.snapshot)
+    end
   end
+  
 
 end

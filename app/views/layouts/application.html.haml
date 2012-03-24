@@ -5,8 +5,6 @@
   %title CloudTracker 2.0
   = javascript_include_tag "application"
   = stylesheet_link_tag "application"
-  %script{:type => "text/x-javascript-template", :id => "tracker-cell"}
-    %span.note {{note_text}}{{hiNyb sample}}{{loNyb sample}}{{loNyb command}}{{hiNyb command_params}}{{loNyb command_params}}
   = yield :head
 %body
   = yield

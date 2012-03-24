@@ -1,0 +1,5 @@
+%h1 Upload module
+
+= form_for @mod, html: {multipart: true} do |f|
+  = f.file_field :mod_file
+  = f.submit :upload

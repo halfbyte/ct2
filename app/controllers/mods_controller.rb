@@ -3,20 +3,26 @@ class ModsController < ApplicationController
 
   # lets you upload a new mod
   def new
-
+    @mod = Mod.new
   end
 
   # uploads module, sets title
   # or, without upload, creates empty module shell
   def create
+    @mod = Mod.new(params[:mod])
+    if @mod.save
+      redirect_to @mod, :notice => 'module successfully uploaded'
+    else
+      render 'new'
+    end
   end
-
   # html - renders editor
   # json - renders jsonmod
   # js - renders playerbadge?
   # without user, the mod needs to be public
-  def show
-
+  def show  
+    @mod = Mod.find(params[:id])
+    @pt = @mod.protracker_module
   end
 
   # html - renders player only
