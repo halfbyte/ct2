@@ -38,11 +38,6 @@ Ct2::Application.configure do
 
   # Use a different logger for distributed setups
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
-  # config.lograge.enabled = true
-  require 'gelf'
-  config.logger = GELF::Logger.new("lvps46-163-76-165.dedicated.hosteurope.de", 12201, "WAN", { :facility => "cloudtracker-staging" })
-
-  config.colorize_logging = false
 
   # Use a different cache store in production
   # config.cache_store = :mem_cache_store
@@ -69,4 +64,12 @@ Ct2::Application.configure do
   # Log the query plan for queries taking more than this (works
   # with SQLite, MySQL, and PostgreSQL)
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
+  config.after_initialize do
+    Ct2::Application.config.lograge.enabled = true
+
+    require 'gelf'
+    Ct2::Application.config.logger = GELF::Logger.new("lvps46-163-76-165.dedicated.hosteurope.de", 12201, "WAN", { :facility => "cloudtracker-staging" })
+    Ct2::Application.config.colorize_logging = false
+  end
+
 end
