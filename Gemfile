@@ -14,14 +14,12 @@ gem 'haml-rails'
 gem 'bindata'
 gem 'carrierwave'
 gem 'jbuilder'
+gem 'unicorn'
+# gem 'gelf'
+# gem 'lograge'
 
 # Gems used only for assets and not required
 # in production environments by default.
-gem 'unicorn'
-gem 'gelf'
-# gem 'time_bandits'
-gem 'lograge'
-
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
   gem 'coffee-rails', '~> 3.2.1'

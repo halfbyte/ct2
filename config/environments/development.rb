@@ -34,12 +34,4 @@ Ct2::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
-
-  config.after_initialize do
-    Ct2::Application.config.lograge.enabled = true
-
-    require 'gelf'
-    Ct2::Application.config.logger = GELF::Logger.new("lvps46-163-76-165.dedicated.hosteurope.de", 12201, "WAN", { :facility => "cloudtracker-staging" })
-    Ct2::Application.config.colorize_logging = false
-  end
 end
