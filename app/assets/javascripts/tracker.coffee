@@ -53,13 +53,6 @@ class window.CT2.views.TrackerView extends Backbone.View
     @patterns = []
     @mode = 'idle'
 
-  move_in_tracker: (key) ->
-    switch key
-      when 40
-        @current_pattern().change_row_by(1)
-      when 38
-        @current_pattern().change_row_by(-1)
-
   move_to: (pattern, row) =>
     if pattern != @current_pattern
       @change_pattern(pattern)
@@ -82,6 +75,7 @@ class window.CT2.views.TrackerView extends Backbone.View
 class window.CT2.views.AppView extends Backbone.View
 
   keymapping:
+    9: 'jump_channel'
     18: 'play'
     32: 'spacebar'
     39: 'right'
@@ -187,7 +181,7 @@ class window.CT2.views.AppView extends Backbone.View
   update_cursor: ->
     x = 88 + (@current_channel * 216) + (@current_col * 23) + (if @current_col > 0 then 23*2 else 0)
     console.log(x)
-    $('#cursor').css(left: x)
+    
   update_tracker: ->
     if window.CT2.trackerView?
       window.CT2.trackerView.move_to(@current_pattern, @current_row)
@@ -296,9 +290,23 @@ class window.CT2.views.AppView extends Backbone.View
       @current_col = 0
     @update_cursor()
 
+  jump_channel: (e)->
+    if e.shiftKey
+      @prev_channel()
+    else
+      @next_channel()
+
+  next_channel: ->
+    @current_channel = (@current_channel + 1) % 4
+    @current_col = 0
+    @update_cursor()
+
+  prev_channel: ->
+    @current_channel--
+    @current_channel = 3 if @current_channel < 0
+    @update_cursor()
 
   keydown: (e) ->
-
     if @keymapping[e.which]?
       @[@keymapping[e.which]](e)
       e.preventDefault()
