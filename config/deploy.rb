@@ -20,6 +20,7 @@ set :port, 54321
 
 default_run_options[:pty] = true
 ssh_options[:forward_agent] = true
+ssh_options[:port] = 54321
 
 after "deploy", "deploy:cleanup" # keep only the last 5 releases
 
