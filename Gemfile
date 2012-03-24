@@ -15,6 +15,8 @@ gem 'bindata'
 
 # Gems used only for assets and not required
 # in production environments by default.
+gem 'unicorn'
+
 group :assets do
   gem 'sass-rails',   '~> 3.2.3'
   gem 'coffee-rails', '~> 3.2.1'
@@ -27,6 +29,9 @@ group :assets do
 end
 
 group :development do
+  gem 'capistrano'
+  gem 'capistrano-ext'
+  gem 'capistrano_rsync_with_remote_cache'
   gem 'foreman'
   gem 'thin'
 end
