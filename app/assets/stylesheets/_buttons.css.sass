@@ -66,6 +66,45 @@
   text-shadow: none
   line-height: $button-height + (2 * $factor)
 
+#status-bar
+  +tracker_button
+  width: $pane-width - 2 * $factor
+  +tb_height(2)
+  line-height: calculate_height(1) + (2 * $factor)
 
+#some-numbers
+  +tb_height(2)
+  line-height: calculate_height(2) + (2 * $factor)
+  +float-left
+  width: 2 * $button-tiny-width
+  span
+    +hover_border_styles
+    +dark_text
+    padding-top: 3px
+  
+#tempo
+  +float-left
+  width: 140px
 
+#number
+  +dark_text
 
+#control
+  clear: left
+  width: $button-medium-width
+  font-size: 20px
+  #control-up, #control-down, span
+    +float-left
+  .label
+    margin-right: 5px
+
+#status-label, #status
+  +float-left
+  +tb_height(2)
+  line-height: calculate_height(2) + (2 * $factor)
+  font-size: 20px
+
+#whatever
+  +float-right
+  .counter
+    +dark_text

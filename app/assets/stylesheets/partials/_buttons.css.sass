@@ -18,14 +18,7 @@ $scope-bar-width: $factor * 9px
 
 $pane-width: (2 * $button-small-width) + (5 * $button-tiny-width) + (3 * $button-medium-width) + (10 * 2 * $factor)
 
-=tracker_button
-  +float-left
-  text-align: center
-  font-family: $standard-font
-  font-size: 27px
-  color: $button-text-color
-  text-transform: uppercase
-  background-color: $button-background
+=border_styles
   border-left: $factor * 1px solid #ACACAC
   border-left-style: 'inset'
   border-top: $factor * 1px solid #ACACAC
@@ -34,11 +27,34 @@ $pane-width: (2 * $button-small-width) + (5 * $button-tiny-width) + (3 * $button
   border-right-style: 'outset'
   border-bottom: $factor * 1px solid #585858
   border-bottom-style: 'outset'
+
+=hover_border_styles
+  border-left: $factor * 1px solid #585858
+  border-left-style: 'inset'
+  border-top: $factor * 1px solid #585858
+  border-top-style: 'inset'
+  border-right: $factor * 1px solid #ACACAC
+  border-right-style: 'outset'
+  border-bottom: $factor * 1px solid #ACACAC
+  border-bottom-style: 'outset'
+
+=tracker_button
+  +float-left
+  +border_styles
+  text-align: center
+  font-family: $standard-font
+  font-size: 27px
+  color: $button-text-color
+  text-transform: uppercase
+  background-color: $button-background
   line-height: $button-height
   +text-shadow(#000 3px 3px 0)
 
+@function calculate_height($number_of_lines)
+  @return ($number_of_lines * $button-height) + (($number_of_lines - 1 ) * ($factor * 2))
+
 =tb_height($number_of_lines: 1, $correction: 0)
-  height: ($number_of_lines * $button-height) + (($number_of_lines - 1 ) * ($factor * 2)) + $correction
+  height: calculate_height($number_of_lines) + $correction
 
 =tb_small
   +tracker_button
@@ -73,3 +89,8 @@ $scope-area-width: ($tb-line-width - (5 * $scope-bar-width) - (4 * 2 * $factor))
   width: $button-small-width + $button-medium-width + 2
   text-align: right
   +float-left
+
+=dark_text
+  color: black
+  text-shadow: none
+

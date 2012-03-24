@@ -91,6 +91,28 @@
 
   #load Load
 
+  #status-bar
+    #some-numbers 
+      %span 00
+    #tempo
+      #number 125
+      #control
+        #control-up &#x25B2;
+        %span.label Tempo
+        #control-down &#x25BC;
+    #status-label Status:
+    #status
+    #whatever
+      .whatever
+        %span.label Tune
+        %span.counter 304558
+      .whatever
+        %span.label Free
+        %span.counter 624358
+
+
+
+
 %label 
   Load MOD File
   %input{:id => 'modfile', :type => 'file'}
