@@ -29,11 +29,9 @@ class PatternNote < BinData::Record
   end
 
   def sample=(s)
-    sample_hi.assign (sample >> 4) & 0F
-    sample_lo.assign (sample & 0F)
+    sample_hi.assign (sample >> 4) & 0xF
+    sample_lo.assign (sample & 0xF)
   end
-
-
 end
 
 class PatternRow < BinData::Record
@@ -56,7 +54,7 @@ class ProtrackerModule < BinData::Record
   array :sample_data, :initial_length => lambda { self.samples.length } do
     string :read_length => lambda { self.samples[index].len * 2 }
   end
-  
+
   def max_pattern_index
     self.pattern_table.inject(0) {|m,p| p > m ? p : m}
   end
