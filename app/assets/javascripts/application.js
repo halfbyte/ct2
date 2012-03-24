@@ -18,6 +18,8 @@
 //= require backbone
 
 //= require jquery_extensions
+//= require buffer_conversions
 
 //= require player
+//= require buffer_conversions
 //= require tracker

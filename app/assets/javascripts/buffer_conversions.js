@@ -1,18 +1,28 @@
 (function() {
-  window.stringToArrayBuffer = function(input, callback) {
+  // window.stringToArrayBuffer = function(input, callback) {
+  //   var bb = new (window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder)();
+  //   bb.append(input);
+  //   var f = new FileReader();
+  //   f.onloadend = function(e) { console.log(e.target.result); if(e.target.readyState === FileReader.DONE) callback(e.target.result); };
+  //   f.onerror = function(e) { callback(e)};
+  //   f.readAsArrayBuffer(bb.getBlob());  
+  // };
+
+  window.base64ToInt8 = function(input, success, error) {
     var bb = new (window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder)();
-    bb.append(input);
+    bb.append(atob(input));
     var f = new FileReader();
-    f.onloadend = function(e) { console.log(e.target.result); if(e.target.readyState === FileReader.DONE) callback(e.target.result); };
-    f.onerror = function(e) { callback(e)};
-    f.readAsArrayBuffer(bb.getBlob());  
-  };
-  window.ArrayBufferToString = function(input, callback) {
-    var bb = new (window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder)();
-    bb.append(input);
-    var f = new FileReader();
-    f.onloadend = function(e) { if(e.target.readyState === FileReader.DONE) callback(e.target.result); };
-    f.onerror = function(e) { callback(e)};
-    f.readAsBinaryString(bb.getBlob());
+    f.onloadend = function(e) { if(e.target.readyState === FileReader.DONE && typeof(success) == 'function') success(new Int8Array(e.target.result),0,e.target.result.byte_length); };
+    f.onerror = function(e) { if(typeof(error) == 'function') error(e)};
+    f.readAsArrayBuffer(bb.getBlob());
   }
+
+  // window.ArrayBufferToString = function(input, callback) {
+  //   var bb = new (window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder)();
+  //   bb.append(input);
+  //   var f = new FileReader();
+  //   f.onloadend = function(e) { if(e.target.readyState === FileReader.DONE) callback(e.target.result); };
+  //   f.onerror = function(e) { callback(e)};
+  //   f.readAsBinaryString(bb.getBlob());
+  // }
 })();
