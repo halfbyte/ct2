@@ -66,8 +66,10 @@
   text-shadow: none
   line-height: $button-height + (2 * $factor)
 
-#status-bar
+#status-and-boxes
   +tracker_button
+
+#status-bar
   width: $pane-width - 2 * $factor
   +tb_height(2)
   line-height: calculate_height(1) + (2 * $factor)
@@ -108,3 +110,21 @@
   +float-right
   .counter
     +dark_text
+
+#boxes
+  +float-left
+  width: $pane-width - 2 * $factor
+  padding-bottom: 2 * $factor#{px}
+  .box
+    +float-left
+    +tb_height(7)
+    +hover_border_styles
+    background-color: black
+    color: #00c66e
+    margin-left: 2 * $factor#{px}
+  .small
+    width: (2 * $button-tiny-width) - (2 * (2 * $factor))
+  .normal
+    width: (((($pane-width - 2 * $factor) - (2 * $button-tiny-width)) / 4) - (2 * (2 * $factor))) - 2px // 2px magic, don´t ask
+  #box-five
+    margin-right: 2 * $factor#{px}
