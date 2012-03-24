@@ -29,12 +29,15 @@ class window.CT2.views.PatternView extends Backbone.View
     @change_to_row(@current_row + n)
     
   change_to_row: (row) ->
+    row_to_start = 5
+    line_height = -36
+    offset = 66 # height of dom element #status-bar
     @current_row = row
     @current_row = 63 if @current_row < 0
     @current_row = 0 if @current_row > 63
     @$('.row').removeClass('active')
     @$('.row:nth-child(' + (@current_row + 1) + ')').addClass('active');
-    this.$el.css('top', (@current_row - 7) * -21)
+    this.$el.css('top', ((@current_row - row_to_start) * line_height) + offset)
 
   render: ->
     @$el.html(@pattern_html)
@@ -99,7 +102,7 @@ class window.CT2.views.AppView extends Backbone.View
       else
         console.log("loaded.")
         window.CT2.trackerView = new window.CT2.views.TrackerView({module: window.CT2.PlayerInstance.module})
-        $('#trackerpane').append(window.CT2.trackerView.render().el)
+        $('#status-and-boxes').append(window.CT2.trackerView.render().el)
   update_view: =>
     if window.CT2.trackerView? and @mode == 'playing'
       window.CT2.trackerView.move_to(window.CT2.PlayerInstance.cur_pos, window.CT2.PlayerInstance.cur_row)

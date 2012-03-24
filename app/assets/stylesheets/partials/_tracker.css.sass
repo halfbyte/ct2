@@ -1,34 +1,26 @@
 .tracker
-  width: 1000px
+  width: $pane-width - 4px
   font-family: $standard-font
-  font-size: 1.2em
-  letter-spacing: 0.2em
+  font-size: $default-font-size
   .pattern
     position: absolute
     top: 0
-    left: 0    
+    left: 0
     .row
       +clearfix
       color: #fff
-      padding: 3px 5px
-      height: 15px
-      line-height: 15px
+      height: calculate_height(1) + (2 * $factor)
+      line-height: calculate_height(1) + (2 * $factor)
       &.active
-        
-        // font-size: 1.5em
         color: #000
-        padding: 5px 5px
-        height: 36px
-        line-height: 36px
       .row-num
         float: left
-        width: 50px
-        margin-right: 30px
-        text-align: right
+        width: (2 * $button-tiny-width) - (2 * $factor) // same calculation as for #boxes .small
+        margin-left: 2 * $factor#{px}
       .cell
         float: left
-        width: 200px
-        margin-right: 16px
-        &:last-child
-          margin-right: 0
-        
+        width: (((($pane-width - 2 * $factor) - (2 * $button-tiny-width)) / 4) - (2 * $factor)) - 2px // same calculation as for #boxes .normal
+        margin-left: 2 * $factor#{px}
+        .note
+          letter-spacing: 4px
+

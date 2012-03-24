@@ -23,19 +23,19 @@
 .scope-container
   +scope
 
-.scope-no 
-  +tracker_button  
+.scope-no
+  +tracker_button
   +tb_height(3)
   +float-left
   width: $scope-bar-width
 
 .scope-area
-  background-color: black  
-  +tb_height(3, 2 * $factor) 
+  background-color: black
+  +tb_height(3, 2 * $factor)
   +float-left
   width: $scope-area-width
 
-#finetune-foo-container 
+#finetune-foo-container
   +float-left
   width: $button-small-width + (2 * $button-tiny-width) + (3 * 2 * $factor)
 
@@ -72,6 +72,7 @@
 
 #status-and-boxes
   +tracker_button
+  position: relative
 
 #status-bar
   width: $pane-width - 2 * $factor
@@ -87,7 +88,7 @@
     +hover_border_styles
     +dark_text
     padding-top: 3px
-  
+
 #tempo
   +float-left
   width: 140px
@@ -121,10 +122,9 @@
   padding-bottom: 2 * $factor#{px}
   .box
     +float-left
-    +tb_height(10)
+    +tb_height(9)
     +hover_border_styles
     background-color: black
-    color: #00c66e
     font-size: 24px
     letter-spacing: 2 * $factor#{px}
     margin-left: 2 * $factor#{px}
