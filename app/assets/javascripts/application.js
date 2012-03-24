@@ -19,7 +19,10 @@
 
 //= require jquery_extensions
 //= require buffer_conversions
+//= require handlebars_helpers
 
+//= require cloudtracker
+//= require models/mod
 //= require player
 //= require buffer_conversions
 //= require tracker

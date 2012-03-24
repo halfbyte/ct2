@@ -1,101 +1,9 @@
-class Mod
-  # convert array of charcodes to sting
-  # seems to magically work.  
-  NOTES: ['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-', 'B#']
-  atos: (a) ->
-    s = String.fromCharCode(a...)
-  signed_nybble: (a) ->
-    if a >= 8 then a-16 else a
-  note_from_text: (note) ->
-    return "---" if note == 0
-    oct = Math.floor((note - 1) / 12)
-    @NOTES[(note - 1) % 12] + oct
 
-
-  constructor: (data) ->
-    @samples = []
-    @patterns = []
-    subdata = new Uint8Array(data, 1080, 4);
-    if @atos(subdata) == 'M.K.'
-      @name = @atos(new Uint8Array(data, 0, 20));
-      for i in [0..30]
-        sample = {}
-        sample.name = @atos(new Uint8Array(data, 20 + (30*i), 22))
-        sample_data = new Uint8Array(data, 20 + (30*i) + 22, 8)
-        sample.length = ((sample_data[0] << 8) + (sample_data[1])) * 2
-        sample.finetune = @signed_nybble(sample_data[2] & 0x0F)
-        sample.raw_finetune = sample_data[2] & 0x0F
-        sample.volume = sample_data[3]
-        sample.repeat = ((sample_data[4] << 8) + (sample_data[5])) * 2
-        sample.replen = ((sample_data[6] << 8) + (sample_data[7])) * 2
-        @samples.push(sample)
-
-      pattern_data = new Uint8Array(data, 950, 2)
-      @pattern_table_length = pattern_data[0]
-      @pattern_table = new Uint8Array(data, 952, 128)
-      @num_patterns = _.max(@pattern_table)
-      
-      for p in [0..@num_patterns]
-        pattern = []
-        pattern_data = new Uint8Array(data, 1084 + (p * 1024), 1024)
-        for s in [0..63]
-          step = []
-          for c in [0..3]
-            note = {}
-            note.raw_data = [pattern_data[(s * 16) + (c * 4)], pattern_data[(s * 16) + (c * 4) + 1], pattern_data[(s * 16) + (c * 4) + 2], pattern_data[(s * 16) + (c * 4) + 3]] 
-            note.period = ((pattern_data[(s * 16) + (c * 4)] & 0x0F) << 8) + (pattern_data[(s * 16) + (c * 4) + 1] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 1] & 0x0F)
-            note.note = find_note(note.period)
-            note.note_text = @note_from_text(note.note)
-            note.sample = (pattern_data[(s * 16) + (c * 4)] & 0xF0) + ((pattern_data[(s * 16) + (c * 4) + 2] & 0xF0) >> 4)
-            note.command = (pattern_data[(s * 16) + (c * 4) + 2] & 0x0F)
-            note.command_params = (pattern_data[(s * 16) + (c * 4) + 3] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 3] & 0x0F)
-            note.hex_command_params = note.command_params.toString(16)
-
-            step.push(note)
-          pattern.push(step)
-        @patterns.push(pattern)
-
-      offset = 1084 + ((@num_patterns + 1) * 1024)
-      for sample in @samples
-        sample.data = new Int8Array(data, offset, sample.length)
-        offset += sample.length
-    else
-      raise('Invalid Module Data')
-
-find_note = (period) ->
-  note = 0
-  bestd = Math.abs(period - Player::BASE_PTABLE[0])
-  if (period)
-    for i in [1..60]
-      d = Math.abs(period - Player::BASE_PTABLE[i])
-      if d < bestd
-        bestd = d
-        note = i
-  note
-
-
-
-clamp = (x, min, max) ->
+# clamp function, used throughout the player
+window.CT2.player.clamp = (x, min, max) ->
   Math.max(min, Math.min(max, x))
 
-lerp = (a, b, f) ->
-  a + f * (b - a)
-
-sinc = (x) ->
-  if x then Math.sin(x) / x else 1
-
-sqr = (x) ->
-  x * x
-
-hamming = (x) ->
-  if (x > -1 && x < 1)
-    sqr(Math.cos(x * Math.PI / 2.0))
-  else
-    0
-
-class MixerVoice
-
-
+class window.CT2.player.MixerVoice
   constructor: ->
     @sample_len = 0
     @loop_len = 0
@@ -103,7 +11,6 @@ class MixerVoice
     @volume = 0
     @pos =  0.0
     @sample = null
-
 
   render: (buffer, offset, samples) ->
     return if !@sample
@@ -133,16 +40,14 @@ class MixerVoice
     @loop_len = loop_len
     @pos = Math.min(offset, @sample_len - 1)
 
-
-
-class Mixer
+class window.CT2.player.Mixer
 
   PAULARATE: 3740000
   OUTRATE: 48000
   constructor: ->
     @voices = []
     for i in [0..3]
-      @voices.push(new MixerVoice())
+      @voices.push(new window.CT2.player.MixerVoice())
     @master_volume = 0.66
     @master_separation = 0.5
 
@@ -153,7 +58,7 @@ class Mixer
       else
         @voices[ch].render(r_buf, offset, samples)
 
-class Channel
+class window.CT2.player.Channel
   constructor: (@player) ->
     @note = 0
     @period = 0
@@ -188,7 +93,7 @@ class Channel
       offs--
       ft += 16
     if @note
-      @player.PTABLE[ @to_unsigned(ft) & 0x0f ][clamp(@note+offs-1,0,59)]
+      @player.PTABLE[ @to_unsigned(ft) & 0x0f ][window.CT2.player.clamp(@note+offs-1,0,59)]
     else
       0
   set_period: (offs = 0, fineoffs = 0) ->
@@ -197,15 +102,15 @@ class Channel
 
 
 
-class Player
+class window.CT2.player.Player
 
   constructor: ->
     @module = null
     @channels = []
     for i in [0..3]
-      @channels.push(new Channel(this))
+      @channels.push(new window.CT2.player.Channel(this))
 
-    @mixer = new Mixer()
+    @mixer = new window.CT2.player.Mixer()
     @calc_ptable()
     @calc_vibtable()
     @bpm = 125
@@ -222,12 +127,7 @@ class Player
 
 
 
-  BASE_PTABLE: [
-    0, 1712,1616,1525,1440,1357,1281,1209,1141,1077,1017, 961, 907,
-    856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453,
-    428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226,
-    214, 202, 190, 180, 170, 160, 151, 143, 135, 127, 120, 113,
-    107, 101,  95,  90,  85,  80,  76,  71,  67,  64,  60,  57]
+  
   OUTRATE: 48000
   OUTFPS: 50
 
@@ -254,7 +154,7 @@ class Player
         result = evt.target.result;
         
 
-        @module = new Mod(result);
+        @module = new window.CT2.models.Mod(result);
         
         @reset()
 
@@ -298,7 +198,7 @@ class Player
       
       periods = []
       for i in [0..59]
-        periods.push(Math.round(@BASE_PTABLE[i] * fac))
+        periods.push(Math.round(window.CT2.constants.BASE_PTABLE[i] * fac))
       @PTABLE.push(periods)
     
     @PTABLE
@@ -402,7 +302,7 @@ class Player
             channel.trem_speed = channel.fxbuf[7] >> 4 if channel.fxbuf[7] & 0xf0
             trem_vol = @VIB_TABLE[channel.trem_wave][channel.trem_ampl - 1][channel.trem_pos] if channel.trem_ampl
           when 12
-            channel.volume = clamp(note.command_params, 0, 64)
+            channel.volume = window.CT2.player.clamp(note.command_params, 0, 64)
           when 14
             channel.fxbuf_14[note.command_params >> 4] = fxpl if fxpl
             switch (note.command_params >> 4)
@@ -522,7 +422,7 @@ class Player
                 channel.note = note.note
                 @trig_note(ch, note) if @cur_tick == channel.fxbuf_14[13]
 
-      voice.volume = clamp(channel.volume + trem_vol, 0, 64)
+      voice.volume = window.CT2.player.clamp(channel.volume + trem_vol, 0, 64)
 
       voice.period = channel.period
 
@@ -559,8 +459,5 @@ class Player
         @tick() if @playing
         @tr_counter = Math.floor(@tick_rate)
     
-
-
-
 # give the app a single instance only
-window.Player = new Player()
+window.CT2.PlayerInstance = new window.CT2.player.Player()
