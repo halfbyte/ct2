@@ -38,7 +38,7 @@ Ct2::Application.configure do
 
   # Use a different logger for distributed setups
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
-  config.lograge.enabled = true
+  # config.lograge.enabled = true
   config.logger = GELF::Logger.new("lvps46-163-76-165.dedicated.hosteurope.de", 12201, "WAN", { :facility => "cloudtracker-staging" })
   config.colorize_logging = false
 
