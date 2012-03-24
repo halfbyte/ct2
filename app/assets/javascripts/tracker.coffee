@@ -24,20 +24,19 @@ class window.CT2.views.PatternView extends Backbone.View
         @pattern_html += "<div class='cell'><span class='note'>" + col.note_text + @format_byte(col.sample) + @format_nybble(col.command) + @format_byte(col.command_params) + "</span></div>"
       @pattern_html += "</div>"
       row_num++
-          
+
   change_row_by: (n) ->
     @change_to_row(@current_row + n)
-    
+
   change_to_row: (row) ->
-    row_to_start = 5
+    row_to_start = 4
     line_height = -36
-    offset = 66 # height of dom element #status-bar
     @current_row = row
     @current_row = 63 if @current_row < 0
     @current_row = 0 if @current_row > 63
     @$('.row').removeClass('active')
     @$('.row:nth-child(' + (@current_row + 1) + ')').addClass('active');
-    this.$el.css('top', ((@current_row - row_to_start) * line_height) + offset)
+    this.$el.css('top', (@current_row - row_to_start) * line_height)
 
   render: ->
     @$el.html(@pattern_html)
@@ -63,7 +62,7 @@ class window.CT2.views.AppView extends Backbone.View
     @current_col = 0
     @current_sample = 0
     window.setInterval(@update_view, 40);
-  
+
   events:
     'keydown': 'keydown'
     'change #modfile': 'load_mod'
@@ -85,7 +84,7 @@ class window.CT2.views.AppView extends Backbone.View
   play: ->
     window.CT2.PlayerInstance.play()
     @set_mode('playing')
-  
+
   stop: ->
     window.CT2.PlayerInstance.stop()
     @set_mode('idle')
@@ -102,7 +101,7 @@ class window.CT2.views.AppView extends Backbone.View
       else
         console.log("loaded.")
         window.CT2.trackerView = new window.CT2.views.TrackerView({module: window.CT2.PlayerInstance.module})
-        $('#status-and-boxes').append(window.CT2.trackerView.render().el)
+        $('#boxes-and-tracker').append(window.CT2.trackerView.render().el)
   update_view: =>
     if window.CT2.trackerView? and @mode == 'playing'
       window.CT2.trackerView.move_to(window.CT2.PlayerInstance.cur_pos, window.CT2.PlayerInstance.cur_row)
@@ -197,15 +196,15 @@ class window.CT2.views.TrackerView extends Backbone.View
     @patterns[p] ?= new window.CT2.views.PatternView({pattern: @options.module.patterns[p]})
     @$el.html(@patterns[p].render().el)
     this
-  
+
 
 jQuery ->
   window.CT2.App = new window.CT2.views.AppView();
 
-  
-            
-          
-        
-          
 
-        
+
+
+
+
+
+

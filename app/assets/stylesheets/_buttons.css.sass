@@ -72,7 +72,6 @@
 
 #status-and-boxes
   +tracker_button
-  position: relative
 
 #status-bar
   width: $pane-width - 2 * $factor
@@ -115,6 +114,11 @@
   +float-right
   .counter
     +dark_text
+
+#boxes-and-tracker
+  width: $pane-width - 2 * $factor
+  position: relative
+  overflow: hidden
 
 #boxes
   +float-left
