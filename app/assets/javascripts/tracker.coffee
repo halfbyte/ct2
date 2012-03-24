@@ -82,11 +82,13 @@ class window.CT2.views.TrackerView extends Backbone.View
 class window.CT2.views.AppView extends Backbone.View
 
   keymapping:
+    18: 'play'
     32: 'spacebar'
     39: 'right'
     37: 'left'
     38: 'up'
     40: 'down'
+    93: 'play_pattern'
     112: 'lower_octave'
     113: 'upper_octave'
 
@@ -256,7 +258,11 @@ class window.CT2.views.AppView extends Backbone.View
       @current_sample = 30
     @update_sample_fields()
   next_pos: ->
-    #pass
+    @current_pos++
+    if @current_pos >= window.CT2.PlayerInstance.module.pattern_table.length
+      @current_pos = window.CT2.PlayerInstance.module.pattern_table.length - 1
+    @update_pattern_fields()
+    window.CT2.PlayerInstance.cur_pos = @current_pos
 
   prev_pattern: ->
     @current_pattern--
@@ -269,8 +275,11 @@ class window.CT2.views.AppView extends Backbone.View
       @current_sample = 0
     @update_sample_fields()
   prev_pos: ->
-    #pass
-
+    @current_pos--
+    if @current_pos < 0
+      @current_pos = 0
+    @update_pattern_fields()
+    window.CT2.PlayerInstance.cur_pos = @current_pos
 
   cursor_left: ->
     @current_col--

@@ -168,6 +168,7 @@ class window.CT2.player.Player
   play: ->
     @playing = true
     @pattern_only = false
+    @cur_row = 0
     console.log 'PLAYING'
 
   # play current patter
@@ -175,6 +176,7 @@ class window.CT2.player.Player
     @cur_pattern = pattern
     @pattern_only = true
     @playing = true
+    @cur_row = 0
     console.log 'PLAYING PATTERN'
 
   stop: ->
