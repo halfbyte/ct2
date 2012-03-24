@@ -1,6 +1,15 @@
 require 'capistrano/ext/multistage'
 require "bundler/capistrano"
 
+# Add RVM's lib directory to the load path.
+$:.unshift(File.expand_path('./lib', ENV['rvm_path']))
+
+# Load RVM's capistrano plugin.
+require "rvm/capistrano"
+
+set :rvm_ruby_string, 'ruby-1.9.2-p318'
+set :rvm_type, :user
+
 server "46.163.76.165", :web, :app, :db, primary: true
 
 set :application, "cloudtracker"
