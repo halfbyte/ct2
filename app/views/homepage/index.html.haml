@@ -1,3 +1,96 @@
+#trackerpane
+  #position Pos
+  #insert I
+  #delete D
+  #position_counter
+  .up
+  .down
+  #play Play
+  #stop Stop
+  #playlist Plist
+  #channel-one 1
+
+  #pattern-length Pattern Length
+  .foo
+  .up
+  .down
+  #pattern Pattern
+  #clear Clear
+  #preset-editor PSET-ED
+  #channel-two 2
+
+  .foo
+  .up
+  .down
+  #edit Edit
+  #edit-op Edit Op.
+  #setup Setup
+  #channel-three 3
+
+  #finetune
+    %ol
+      %li Finetune
+      %li Sample
+      %li Volume
+      %li Length
+      %li Repeat
+      %li Replen
+  .foo
+  .up
+  .down
+  #record Record
+  #disk-op Disk Op.
+  #sampler Sampler
+  #channel-four 4
+
+  .foo
+  .up
+  .down
+  #quadrascope Quadrascope
+
+  #finetune-foo-container 
+    .foo
+    .up
+    .down
+
+    .foo
+    .up
+    .down
+
+    .foo
+    .up
+    .down
+
+    .foo
+    .up
+    .down
+
+  #scope-one.scope-container
+    .scope-no 1
+    .scope-area &nbsp;
+  #scope-two.scope-container
+    .scope-no 2
+    .scope-area &nbsp;
+  #scope-three.scope-container
+    .scope-no 3
+    .scope-area &nbsp;
+  #scope-four.scope-container
+    .scope-no 4
+    .scope-area &nbsp;
+  .scope-no &nbsp;
+
+  #about 
+    cloudtracker 
+
+  #songname
+    #song-number
+    %span.label Songname:
+
+  #samplename
+    %span.label Samplename:
+
+  #load Load
+
 %label 
   Load MOD File
   %input{:id => 'modfile', :type => 'file'}
@@ -5,7 +98,5 @@
 %button{:id => 'playcontrol'} NOT LOADED
 
 #debug-out
-
-#trackerpane
 
 #cursor

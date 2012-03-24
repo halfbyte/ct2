@@ -1,0 +1,58 @@
+#position, #position_counter, .foo, #load
+  +tb_small
+
+#insert, #delete, .up, .down, #channel-one, #channel-two, #channel-three, #channel-four
+  +tb_tiny
+
+#play, #stop, #playlist, #pattern, #clear, #preset-editor, #edit, #edit-op, #setup, #record, #disk-op, #sampler
+  +tb_medium
+
+#pattern-length
+  +tb_medium
+  +tb_height(2)
+
+#finetune
+  +tb_medium
+  +tb_height(6)
+  // list styles
+
+#quadrascope
+  +tb_line
+
+.scope-container
+  +scope
+
+.scope-no 
+  +tracker_button  
+  +tb_height(3)
+  +float-left
+  width: $scope-bar-width
+
+.scope-area
+  background-color: black  
+  +tb_height(3, 2 * $factor) 
+  +float-left
+  width: $scope-area-width
+
+#finetune-foo-container 
+  +float-left
+  width: $button-small-width + (2 * $button-tiny-width) + (3 * 2 * $factor)
+
+#about
+  +tb_line
+
+#song-number
+  +float-left
+
+#songname
+  +tracker_button
+  width: $pane-width - 2 * $factor
+  .label
+    +tb_label
+
+#samplename
+  +tb_line
+  width: $pane-width - $button-small-width - (2 * 2 * $factor)
+  .label
+    +tb_label
+  

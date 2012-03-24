@@ -1,5 +1,4 @@
 //= require_self
-//= require_tree .
 
 @import "compass/reset"
 @import "compass/utilities"
@@ -7,7 +6,6 @@
 
 +font-face("C64 User Mono", font-files("C64_User_Mono_v1.0-STYLE.woff", "C64_User_Mono_v1.0-STYLE.ttf"), "C64_User_Mono_v1.0-STYLE.eot", 400, normal)
  
-
 body
   cursor: url('pointer-gray.png'), auto
 body.playing_mode
@@ -23,56 +21,14 @@ body.editing_mode
   top: 564px
   left: 10px
 
-
-body
-  background: transparent url('protracker_bg.png') top left no-repeat
-
-
 $standard-font: "C64 User Mono", "Menlo", "Courier New", monospaced
 
+@import "partials/tracker"
+@import "partials/buttons"
+@import "buttons"
+
 #trackerpane
-  position: absolute
-  top: 416px
-  left: 12px
-  height: 340px
-  width: 940px  
-  overflow: hidden
-
-  .tracker
-    width: 1000px
-    font-family: $standard-font
-    font-size: 1.2em
-    letter-spacing: 0.2em
-    .pattern
-      position: absolute
-      top: 0
-      left: 0    
-      .row
-        +clearfix
-        color: #fff
-        padding: 3px 5px
-        height: 15px
-        line-height: 15px
-        &.active
-          
-          // font-size: 1.5em
-          color: #000
-          padding: 5px 5px
-          height: 36px
-          line-height: 36px
-        .row-num
-          float: left
-          width: 50px
-          margin-right: 30px
-          text-align: right
-        .cell
-          float: left
-          width: 200px
-          margin-right: 16px
-          &:last-child
-            margin-right: 0
-          
-
+  +trackerpane-width
 
 #playcontrol
   color: #ccc

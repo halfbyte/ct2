@@ -1,0 +1,75 @@
+$button-background: #808080
+$button-text-color: #B0B0B0
+
+$factor: 3
+
+$button-tiny-width: $factor * 12px
+$button-tiny-with-border-width: $button-tiny-width + ($factor * 2)
+
+$button-small-width: $factor * 45px
+$button-small-with-border-width: $button-small-width + ($factor * 2)
+
+$button-medium-width: (2 * $button-tiny-with-border-width) + (1 * $button-small-with-border-width) - (2 * $factor)
+
+
+$button-height: $factor * 12px
+
+$scope-bar-width: $factor * 9px
+
+$pane-width: (2 * $button-small-width) + (5 * $button-tiny-width) + (3 * $button-medium-width) + (10 * 2 * $factor)
+
+=tracker_button
+  +float-left
+  text-align: center
+  font-family: $standard-font
+  font-size: 27px
+  color: $button-text-color
+  text-transform: uppercase
+  background-color: $button-background
+  border-left: $factor * 1px solid #ACACAC
+  border-left-style: 'inset'
+  border-top: $factor * 1px solid #ACACAC
+  border-top-style: 'inset'
+  border-right: $factor * 1px solid #585858
+  border-right-style: 'outset'
+  border-bottom: $factor * 1px solid #585858
+  border-bottom-style: 'outset'
+  line-height: $button-height
+  +text-shadow(#000 3px 3px 0)
+
+=tb_height($number_of_lines: 1, $correction: 0)
+  height: ($number_of_lines * $button-height) + (($number_of_lines - 1 ) * ($factor * 2)) + $correction
+
+=tb_small
+  +tracker_button
+  +tb_height
+  width: $button-small-width
+
+=tb_tiny
+  +tracker_button
+  +tb_height
+  width: $button-tiny-width
+
+=tb_medium
+  +tracker_button
+  +tb_height
+  width: $button-medium-width
+
+$tb-line-width: (3 * $button-medium-width) + $button-tiny-width + (3 * 2 * $factor)
+$scope-area-width: ($tb-line-width - (5 * $scope-bar-width) - (4 * 2 * $factor)) / 4
+
+=tb_line
+  +tracker_button
+  +tb_height
+  width: $tb-line-width
+
+=scope
+  +float-left
+
+=trackerpane-width
+  width: $pane-width
+
+=tb_label
+  width: $button-small-width + $button-medium-width + 2
+  text-align: right
+  +float-left
