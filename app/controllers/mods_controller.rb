@@ -9,12 +9,13 @@ class ModsController < ApplicationController
   # uploads module, sets title
   # or, without upload, creates empty module shell
   def create
+  end
 
   # html - renders editor
   # json - renders jsonmod
   # js - renders playerbadge?
   # without user, the mod needs to be public
-  def show  
+  def show
 
   end
 
@@ -33,8 +34,5 @@ class ModsController < ApplicationController
   def update
 
   end
-
-
-
 
 end
