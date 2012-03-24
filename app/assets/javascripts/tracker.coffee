@@ -19,7 +19,7 @@ class window.CT2.views.PatternView extends Backbone.View
     row_num = 0
     @pattern_html = ""
     for row in @options.pattern
-      @pattern_html += "<div class='row'><div class='row-num'>" + @format_dec(row_num) + "</div>"
+      @pattern_html += "<div class='row'><div class='row-num'><span class='note'>" + @format_dec(row_num) + "</span></div>"
       for col in row
         @pattern_html += "<div class='cell'><span class='note'>" + col.note_text + @format_byte(col.sample) + @format_nybble(col.command) + @format_byte(col.command_params) + "</span></div>"
       @pattern_html += "</div>"
@@ -66,7 +66,7 @@ class window.CT2.views.TrackerView extends Backbone.View
     @current_pattern = pattern
     @render()
 
-  render: ->    
+  render: ->
     @patterns[@current_pattern] ?= new window.CT2.views.PatternView({pattern: @options.module.patterns[@current_pattern]})
     @$el.html(@patterns[@current_pattern].render().el)
     this
@@ -179,7 +179,11 @@ class window.CT2.views.AppView extends Backbone.View
       window.CT2.trackerView.move_to(@current_pattern, window.CT2.PlayerInstance.cur_row)
 
   update_cursor: ->
-    x = 88 + (@current_channel * 216) + (@current_col * 23) + (if @current_col > 0 then 23*2 else 0)
+    char_width = 30
+    box_width = 216
+    offset = 84
+    channel_step_size = 43
+    x = offset + (@current_channel * box_width) + (@current_col * char_width) + (if @current_col > 0 then char_width*2 else 0) + (@current_channel * channel_step_size)
     @$('#cursor').css('left', x)
 
   update_tracker: ->
@@ -249,7 +253,7 @@ class window.CT2.views.AppView extends Backbone.View
     @update_tracker()
 
   next_sample: ->
-    @current_sample++ 
+    @current_sample++
     if @current_sample > 30
       @current_sample = 30
     @update_sample_fields()
@@ -323,16 +327,16 @@ class window.CT2.views.AppView extends Backbone.View
   data_input:(e) ->
     num = parseInt(String.fromCharCode(e.which), 16)
     return if _.isNaN(num)
-    
+
     e.preventDefault()
 
     console.log("data input", num);
 
   note_input:(note) ->
-    
+
     window.CT2.PlayerInstance.trig_single_note(@current_channel, @current_sample, note + 1 + ((@current_octave + 1) * 12))
     if @mode == 'editing'
-      console.log("insert note:", note);  
+      console.log("insert note:", note);
 
   set_mode: (mode) ->
     @mode = mode
