@@ -10,8 +10,8 @@
   #playlist Plist
   #channel-one 1
 
-  #pattern-length Pattern Length
-  .foo 0000
+  #pattern_length Pattern Length
+  #pattern_in_pos.foo 0000
   .up= up
   .down= down
   #pattern Pattern
@@ -19,7 +19,7 @@
   #preset-editor PSET-ED
   #channel-two 2
 
-  .foo 0000
+  #num_patterns 0000
   .up= up
   .down= down
   #edit Edit
@@ -27,7 +27,7 @@
   #setup Setup
   #channel-three 3
 
-  #finetune
+  #sample_data
     %ol
       %li Finetune
       %li Sample
@@ -35,7 +35,7 @@
       %li Length
       %li Repeat
       %li Replen
-  .foo 0000
+  #sample_finetune.foo 0000
   .up= up
   .down= down
   #record Record
@@ -43,25 +43,25 @@
   #sampler Sampler
   #channel-four 4
 
-  .foo 0000
+  #sample_number.foo 0000
   .up= up
   .down= down
   #quadrascope Quadrascope
 
-  #finetune-foo-container
-    .foo 0000
+  #finetune-foo-container 
+    #sample_volume.foo 0000
     .up= up
     .down= down
 
-    .foo 0000
+    #sample_length.foo 0000
     .up= up
     .down= down
 
-    .foo 0000
+    #sample_repeat.foo 0000
     .up= up
     .down= down
 
-    .foo 0000
+    #sample_replen.foo 0000
     .up= up
     .down= down
 
@@ -88,17 +88,19 @@
     %span#name Banana Split________
     %span#length 00:00
 
-  #samplename
+
+  #samplename-container
     %span.label Samplename:
+    %span#samplename
 
   #load Load
 
   #status-and-boxes
     #status-bar
-      #some-numbers
+      #current_pattern
         %span 00
       #tempo
-        #number 125
+        #bpm 125
         #control
           #control-up &#x25B2;
           %span.label Tempo

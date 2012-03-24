@@ -1,4 +1,4 @@
-#position, #position_counter, .foo, #load
+#position, #position_counter, .foo, #load, #num_patterns
   +tb_small
 
 #insert, #delete, .up, .down, #channel-one, #channel-two, #channel-three, #channel-four
@@ -7,11 +7,11 @@
 #play, #stop, #playlist, #pattern, #clear, #preset-editor, #edit, #edit-op, #setup, #record, #disk-op, #sampler
   +tb_medium
 
-#pattern-length
+#pattern_length
   +tb_medium
   +tb_height(2)
 
-#finetune
+#sample_data
   +tb_medium
   +tb_height(6)
   li
@@ -55,17 +55,21 @@
     letter-spacing: 3px
   #length
 
-#samplename
+#samplename-container
   +tb_line
   width: $pane-width - $button-small-width - (2 * 2 * $factor)
   .label
     +tb_label
+  text-align: left
+#samplename
+  
+  +dark_text
 
 .up
 
 .down
 
-#position_counter, .foo
+#position_counter, .foo, #num_patterns
   color: black
   text-shadow: none
   line-height: $button-height + (2 * $factor)
@@ -77,8 +81,11 @@
   width: $pane-width - 2 * $factor
   +tb_height(2)
   line-height: calculate_height(1) + (2 * $factor)
+  #status
+    font-size: 27px
+    +dark_text
 
-#some-numbers
+#current_pattern
   +tb_height(2)
   line-height: calculate_height(2) + (2 * $factor)
   +float-left
@@ -92,7 +99,7 @@
   +float-left
   width: 140px
 
-#number
+#bpm
   +dark_text
 
 #control

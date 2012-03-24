@@ -115,6 +115,8 @@ class window.CT2.player.Player
     @calc_vibtable()
     @bpm = 125
     @reset()
+    @cur_pos = 0
+    @cur_pattern = 0
     @playing = false
     @soundbridge = SoundBridge(2, 48000, '/javascripts/vendor/');
     window.setTimeout(
@@ -138,7 +140,7 @@ class window.CT2.player.Player
   tr_counter: 0
   cur_tick: 0
   cur_row: 0
-  cur_pos: 0
+  
   delay: 0
 
 
@@ -169,7 +171,8 @@ class window.CT2.player.Player
     console.log 'PLAYING'
 
   # play current patter
-  play_pattern: ->
+  play_pattern: (pattern)->
+    @cur_pattern = pattern
     @pattern_only = true
     @playing = true
     console.log 'PLAYING PATTERN'
@@ -269,7 +272,10 @@ class window.CT2.player.Player
     @delay = 0
 
   tick: ->
-    line = @module.patterns[@module.pattern_table[@cur_pos]][@cur_row]
+    if @pattern_only
+      line = @module.patterns[@module.pattern_table[@cur_pattern]][@cur_row]
+    else
+      line = @module.patterns[@module.pattern_table[@cur_pos]][@cur_row]
     ch = 0
     for note in line
       voice = @mixer.voices[ch]
