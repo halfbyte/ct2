@@ -177,7 +177,7 @@ class window.CT2.player.Player
     @pattern_only = true
     @playing = true
     @cur_row = 0
-    console.log 'PLAYING PATTERN'
+    console.log 'PLAYING PATTERN', pattern
 
   stop: ->
     @playing = false
@@ -275,7 +275,7 @@ class window.CT2.player.Player
 
   tick: ->
     if @pattern_only
-      line = @module.patterns[@module.pattern_table[@cur_pattern]][@cur_row]
+      line = @module.patterns[@cur_pattern][@cur_row]
     else
       line = @module.patterns[@module.pattern_table[@cur_pos]][@cur_row]
     ch = 0

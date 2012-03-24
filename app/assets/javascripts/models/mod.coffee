@@ -3,7 +3,7 @@ class window.CT2.models.Mod
   # seems to magically work.  
   NOTES: ['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-', 'B#']
   atos: (a) ->
-    s = String.fromCharCode(a...)
+    s = String.fromCharCode(a...).replace(/\x00/g, '')
   signed_nybble: (a) ->
     if a >= 8 then a-16 else a
   note_from_text: (note) ->
@@ -22,6 +22,27 @@ class window.CT2.models.Mod
           note = i
     note
 
+  set_sample_hi: (p, r, c, n) ->
+    @patterns[p][r][c].sample = ((n & 1) << 4) | (@patterns[p][r][c].sample & 0xf)
+
+  set_sample_lo: (p, r, c, n) ->
+    @patterns[p][r][c].sample = (@patterns[p][r][c].sample & 0xf0) | (n & 0xf)
+
+  set_command: (p,r,c,n) ->
+    @patterns[p][r][c].command = (n & 0xF)
+
+  set_command_param_hi: (p, r, c, n) ->
+    @patterns[p][r][c].command_params = ((n & 0xF) << 4) | (@patterns[p][r][c].command_params & 0xf)
+
+  set_command_param_lo: (p, r, c, n) ->
+    @patterns[p][r][c].command_params = (@patterns[p][r][c].command_params & 0xf0) | (n & 0xf)
+
+
+
+  set_note: (pattern, row, channel, note, sample) ->
+    @patterns[pattern][row][channel].note = note
+    @patterns[pattern][row][channel].note_text = @note_from_text(note)
+    @patterns[pattern][row][channel].sample = sample + 1
 
   constructor: (data) ->
     @samples = []

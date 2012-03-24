@@ -16,15 +16,6 @@ class window.CT2.views.PatternView extends Backbone.View
   initialize: ->
     @current_row = 0
 
-    row_num = 0
-    @pattern_html = ""
-    for row in @options.pattern
-      @pattern_html += "<div class='row'><div class='row-num'><span class='note'>" + @format_dec(row_num) + "</span></div>"
-      for col in row
-        @pattern_html += "<div class='cell'><span class='note'>" + col.note_text + @format_byte(col.sample) + @format_nybble(col.command) + @format_byte(col.command_params) + "</span></div>"
-      @pattern_html += "</div>"
-      row_num++
-
   change_row_by: (n) ->
     @change_to_row(@current_row + n)
 
@@ -39,6 +30,15 @@ class window.CT2.views.PatternView extends Backbone.View
     this.$el.css('top', (@current_row - row_to_start) * line_height)
 
   render: ->
+    row_num = 0
+    @pattern_html = ""
+    for row in @options.pattern
+      @pattern_html += "<div class='row'><div class='row-num'>" + @format_dec(row_num) + "</div>"
+      for col in row
+        @pattern_html += "<div class='cell'><span class='note'>" + col.note_text + @format_byte(col.sample) + @format_nybble(col.command) + @format_byte(col.command_params) + "</span></div>"
+      @pattern_html += "</div>"
+      row_num++
+
     @$el.html(@pattern_html)
     @change_to_row(@current_row)
     this
@@ -63,8 +63,11 @@ class window.CT2.views.TrackerView extends Backbone.View
     @move_to(pattern, row)
 
   change_pattern: (pattern) =>
+    console.log('change pattern', pattern)
     @current_pattern = pattern
     @render()
+  render_current_pattern: ->
+    @patterns[@current_pattern].render()
 
   render: ->
     @patterns[@current_pattern] ?= new window.CT2.views.PatternView({pattern: @options.module.patterns[@current_pattern]})
@@ -87,6 +90,7 @@ class window.CT2.views.AppView extends Backbone.View
     113: 'upper_octave'
 
 
+
   initialize: ->
     @setElement('body');
     console.log("well")
@@ -99,6 +103,10 @@ class window.CT2.views.AppView extends Backbone.View
     @current_sample = 0
     @current_octave = 0
     @current_pos = 0
+    @editstep = 1
+
+    @update_cursor()
+
     window.setInterval(@update_view, 40);
 
   events:
@@ -117,7 +125,9 @@ class window.CT2.views.AppView extends Backbone.View
       str  = "00000000000000000000000000000".substr(0,l - str.length) + str
     str
 
-  pad: (s, l) ->
+
+
+  pad_with_underscores: (s, l) ->
     str = s
     if str.length < l
       str += "______________________________________________".substr(0,l - str.length)
@@ -167,6 +177,7 @@ class window.CT2.views.AppView extends Backbone.View
       console.log("loaded.")
       window.CT2.trackerView = new window.CT2.views.TrackerView({module: window.CT2.PlayerInstance.module})
       @$('#boxes-and-tracker').append(window.CT2.trackerView.render().el)
+      @update_song_fields()
       @update_pattern_fields()
       @update_sample_fields()
 
@@ -191,6 +202,9 @@ class window.CT2.views.AppView extends Backbone.View
       window.CT2.trackerView.move_to(@current_pattern, @current_row)
       @update_pattern_fields()
 
+  update_song_fields: ->
+    @$('#songname #name').html(@pad_with_underscores(window.CT2.PlayerInstance.module.name, 20))
+
   update_pattern_fields: ->
     @$('#bpm').html(window.CT2.PlayerInstance.bpm)
     @$('#position_counter').html(@format_num(@current_pos, 4, 10))
@@ -205,7 +219,7 @@ class window.CT2.views.AppView extends Backbone.View
     @$('#sample_volume').html(@format_num(sample.volume, 4, 16))
     @$('#sample_repeat').html(@format_num(sample.repeat / 2, 4, 16))
     @$('#sample_replen').html(@format_num(sample.replen / 2, 4, 16))
-    @$('#samplename').html(@pad(sample.name, 22))
+    @$('#samplename').html(@pad_with_underscores(sample.name, 22))
 
 
   upper_octave: ->
@@ -222,8 +236,11 @@ class window.CT2.views.AppView extends Backbone.View
     @update_tracker()
 
   down: ->
-    @current_row = (@current_row + 1) % 64
-    @update_tracker()
+    @advance(1)
+
+  advance: (step) ->
+    @current_row = (@current_row + step) % 64
+    @update_tracker()    
 
   right: (e) ->
     console.log()
@@ -313,30 +330,62 @@ class window.CT2.views.AppView extends Backbone.View
     @update_cursor()
 
   keydown: (e) ->
+    console.log(e)
     if @keymapping[e.which]?
+      console.log("keymapping")
       @[@keymapping[e.which]](e)
       e.preventDefault()
-    else if @current_col == 0 && not e.metaKey and not e.ctrlKey and not e.shiftKey and e.which != 0 and @notemapping[String.fromCharCode(e.which)]?
+    else if @current_col == 0 && not e.metaKey and not e.ctrlKey and not e.shiftKey and not e.altKey and e.which != 0 and @notemapping[String.fromCharCode(e.which)]?
+      console.log("notemapping")
       @note_input(@notemapping[String.fromCharCode(e.which)])
       e.preventDefault()
-    else if @current_col > 0 && @mode == 'editing'
+    else if @current_col > 0 and @mode == 'editing' and not e.ctrlKey and not e.shiftKey and not e.metaKey and not e.altKey
+      console.log("data entry")
       @data_input(e)
-      console.log("Currently Unmapped Key", e.which, e.metaKey)
+    else if e.which >= 49 and e.which <= 57 and e.ctrlKey
+      @set_editstep(e.which - 48)
+    else
+      console.log("Currently Unmapped Key", e.which, e)
+
 
 
   data_input:(e) ->
     num = parseInt(String.fromCharCode(e.which), 16)
     return if _.isNaN(num)
+    
+    switch @current_col
+      when 1
+        if num < 2
+          CT2.PlayerInstance.module.set_sample_hi(@current_pattern,@current_row,@current_channel, num)
+          @advance(@editstep)
+      when 2
+        CT2.PlayerInstance.module.set_sample_lo(@current_pattern,@current_row,@current_channel, num)
+        @advance(@editstep)
+      when 3
+        CT2.PlayerInstance.module.set_command(@current_pattern,@current_row,@current_channel, num)
+        @advance(@editstep)
+      when 4
+        CT2.PlayerInstance.module.set_command_param_hi(@current_pattern,@current_row,@current_channel, num)
+        @advance(@editstep)
+      when 5
+        CT2.PlayerInstance.module.set_command_param_lo(@current_pattern,@current_row,@current_channel, num)
+        @advance(@editstep)
 
-    e.preventDefault()
+    window.CT2.trackerView.render_current_pattern();
 
-    console.log("data input", num);
+  set_editstep: (step) ->
+    @editstep = step
+    @display_status("editstep = " + step)
 
-  note_input:(note) ->
-
-    window.CT2.PlayerInstance.trig_single_note(@current_channel, @current_sample, note + 1 + ((@current_octave + 1) * 12))
+  note_input:(note_num) ->
+    note = note_num + ((@current_octave + 1) * 12)
+    window.CT2.PlayerInstance.trig_single_note(@current_channel, @current_sample, note)
     if @mode == 'editing'
-      console.log("insert note:", note);
+      CT2.PlayerInstance.module.set_note(@current_pattern,@current_row,@current_channel, note, @current_sample)
+      window.CT2.trackerView.render_current_pattern();
+
+      @advance(@editstep)
+      console.log("insert note:", note);  
 
   set_mode: (mode) ->
     @mode = mode
