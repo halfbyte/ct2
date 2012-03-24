@@ -14,8 +14,8 @@ set -e
 TIMEOUT=${TIMEOUT-60}
 APP_ROOT=/home/cloudtracker/apps/cloudtracker/staging/current/public
 PID=$APP_ROOT/tmp/pids/unicorn.pid
-CMD="cd $APP_ROOT; bundle exec unicorn -D -c $APP_ROOT/config/unicorn_staging.rb -E production -p 5000"
-AS_USER=deployer
+CMD="cd $APP_ROOT; bundle exec unicorn -D -c $APP_ROOT/config/unicorn_staging.rb -E staging -p 5000"
+AS_USER=cloudtracker
 set -u
 
 OLD_PIN="$PID.oldbin"

@@ -1,4 +1,4 @@
-root = "/home/cloudtracker/apps/cloudtracker/staging/current/public"
+root = "/home/cloudtracker/apps/cloudtracker/staging/current"
 working_directory root
 pid "#{root}/tmp/pids/unicorn.pid"
 stderr_path "#{root}/log/unicorn.log"
