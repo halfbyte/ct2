@@ -180,8 +180,8 @@ class window.CT2.views.AppView extends Backbone.View
 
   update_cursor: ->
     x = 88 + (@current_channel * 216) + (@current_col * 23) + (if @current_col > 0 then 23*2 else 0)
-    console.log(x)
-    
+    @$('#cursor').css('left', x)
+
   update_tracker: ->
     if window.CT2.trackerView?
       window.CT2.trackerView.move_to(@current_pattern, @current_row)
@@ -216,9 +216,11 @@ class window.CT2.views.AppView extends Backbone.View
     @current_row--
     @current_row = 63 if @current_row < 0
     @update_tracker()
+
   down: ->
     @current_row = (@current_row + 1) % 64
     @update_tracker()
+
   right: (e) ->
     console.log()
     if e.altKey
@@ -310,17 +312,27 @@ class window.CT2.views.AppView extends Backbone.View
     if @keymapping[e.which]?
       @[@keymapping[e.which]](e)
       e.preventDefault()
-    else if not e.metaKey and not e.ctrlKey and not e.shiftKey and e.which != 0 and @notemapping[String.fromCharCode(e.which)]?
-      console.log(e)
+    else if @current_col == 0 && not e.metaKey and not e.ctrlKey and not e.shiftKey and e.which != 0 and @notemapping[String.fromCharCode(e.which)]?
       @note_input(@notemapping[String.fromCharCode(e.which)])
       e.preventDefault()
-    else
+    else if @current_col > 0 && @mode == 'editing'
+      @data_input(e)
       console.log("Currently Unmapped Key", e.which, e.metaKey)
 
 
+  data_input:(e) ->
+    num = parseInt(String.fromCharCode(e.which), 16)
+    return if _.isNaN(num)
+    
+    e.preventDefault()
+
+    console.log("data input", num);
+
   note_input:(note) ->
-    console.log("play note:", note);
+    
     window.CT2.PlayerInstance.trig_single_note(@current_channel, @current_sample, note + 1 + ((@current_octave + 1) * 12))
+    if @mode == 'editing'
+      console.log("insert note:", note);  
 
   set_mode: (mode) ->
     @mode = mode
