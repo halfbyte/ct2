@@ -17,3 +17,5 @@ tmp
 .DS_Store
 
 .rsync_cache/
+
+public/uploads
