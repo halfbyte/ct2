@@ -8,7 +8,6 @@ class Mod < ActiveRecord::Base
     if mod_file
       file = File.open(mod_file.current_path, 'rb')
       mod = ProtrackerModule.read(file)
-      puts mod
       file.close
     end
     mod

@@ -144,7 +144,16 @@ class window.CT2.player.Player
   delay: 0
 
 
-  load: (file, callback)->
+  load_from_json: (json, callback) =>
+    
+    finished = ->
+      
+      callback()
+
+    @module = new window.CT2.models.Mod(json, finished);
+  
+
+  load_from_local_file: (file, callback)->
     reader = new FileReader()
 
     reader.onerror = (evt)->
@@ -287,6 +296,7 @@ class window.CT2.player.Player
       if (!@cur_tick)
         
         if note.sample
+          console.log("ns:", note.sample)
           channel.sample = note.sample
           channel.finetune = @module.samples[note.sample - 1].finetune
           channel.volume = @module.samples[note.sample - 1].volume

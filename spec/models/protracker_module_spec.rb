@@ -27,13 +27,22 @@ describe ProtrackerModule do
     it "should load the commands correctly" do
       @module.patterns[0].rows[0].notes[0].command.should == 12
       @module.patterns[0].rows[0].notes[0].command_params.should == 32
+      @module.patterns[0].rows[0].notes[1].command.should == 12
+      @module.patterns[0].rows[0].notes[1].command_params.should == 0
     end
+
+
   end
 
   describe "sample data" do
     it "should load the samples correctly" do
-      @module.sample_data[0].length.should == 1682
+      @module.sample_data[0].length.should == @module.samples[0].len.snapshot
     end
+  end
+
+
+  describe "the end" do
+    puts @module.foo
   end
 
 end

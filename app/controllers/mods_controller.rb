@@ -23,6 +23,7 @@ class ModsController < ApplicationController
   def show  
     @mod = Mod.find(params[:id])
     @pt = @mod.protracker_module
+    puts "AHA #{@pt.sample_data[0].snapshot.length}"
   end
 
   # html - renders player only

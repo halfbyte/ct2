@@ -29,10 +29,6 @@ class PatternNote < BinData::Record
     (sample_hi << 4) + sample_lo
   end
 
-  def sample=(s)
-    sample_hi.assign (sample >> 4) & 0xF
-    sample_lo.assign (sample & 0xF)
-  end
 end
 
 class PatternRow < BinData::Record
@@ -49,11 +45,11 @@ class ProtrackerModule < BinData::Record
   array :samples, :type => ::Sample, :initial_length => 31
   uint8 :pattern_table_length
   uint8 :unused
-  array :pattern_table, :type => :uint8, :initial_length =>  :pattern_table_length
+  array :pattern_table, :type => :uint8, :initial_length =>  128
   string :cookie, :length => 4
   array :patterns, :type => ::Pattern, :initial_length => lambda { pattern_table.inject(0) {|m,p| p > m ? p : m} + 1 }
   array :sample_data, :initial_length => lambda { samples.length } do
-    string :read_length => lambda { samples[index].len * 2 }
+    string :read_length => lambda { puts index ; puts samples[index].len; samples[index].len * 2 }
   end
 
   def encoded_sample_data

@@ -1,9 +1,9 @@
 json.name @pt.name.snapshot
 json.samples @pt.samples do |json, sample|
   json.name sample.name.snapshot
-  json.length sample.len.snapshot
-  json.repeat sample.repeat.snapshot
-  json.replen sample.replen.snapshot
+  json.length sample.len.snapshot * 2
+  json.repeat sample.repeat.snapshot * 2
+  json.replen sample.replen.snapshot * 2
   json.finetune sample.finetune.snapshot
   json.volume sample.volume.snapshot
 end

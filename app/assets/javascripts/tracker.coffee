@@ -79,13 +79,11 @@ class window.CT2.views.AppView extends Backbone.View
 
   keymapping:
     9: 'jump_channel'
-    18: 'play'
     32: 'spacebar'
     39: 'right'
     37: 'left'
     38: 'up'
     40: 'down'
-    93: 'play_pattern'
     112: 'lower_octave'
     113: 'upper_octave'
 
@@ -109,6 +107,11 @@ class window.CT2.views.AppView extends Backbone.View
 
     window.setInterval(@update_view, 40);
 
+    if @$('#trackerpane').data('url')
+      $.getJSON(@$('#trackerpane').data('url'), {}, @json_loaded)
+        
+
+
   events:
     'keydown': 'keydown'
     'change #modfile': 'load_mod'
@@ -117,6 +120,10 @@ class window.CT2.views.AppView extends Backbone.View
     'click #stop': 'stop'
     'click #edit': 'edit'
 
+
+  json_loaded: (data) =>
+    console.log(data.name)
+    window.CT2.PlayerInstance.load_from_json(data, @loaded)
 
 
   format_num: (w, l, b) ->
@@ -167,7 +174,7 @@ class window.CT2.views.AppView extends Backbone.View
     file = $(e.target).get(0).files[0];
     @$('button #playcontrol.active')
 
-    window.CT2.PlayerInstance.load(file, @loaded)
+    window.CT2.PlayerInstance.load_from_local_file(file, @loaded)
 
   loaded: (err) =>
     if err
@@ -217,8 +224,9 @@ class window.CT2.views.AppView extends Backbone.View
     @$('#sample_finetune').html(sample.finetune)
     @$('#sample_number').html(@format_num(@current_sample + 1, 4, 16))
     @$('#sample_volume').html(@format_num(sample.volume, 4, 16))
-    @$('#sample_repeat').html(@format_num(sample.repeat / 2, 4, 16))
-    @$('#sample_replen').html(@format_num(sample.replen / 2, 4, 16))
+    @$('#sample_repeat').html(@format_num(sample.repeat, 4, 16))
+    @$('#sample_length').html(@format_num(sample.length, 4, 16))
+    @$('#sample_replen').html(@format_num(sample.replen, 4, 16))
     @$('#samplename').html(@pad_with_underscores(sample.name, 22))
 
 

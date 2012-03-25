@@ -44,7 +44,47 @@ class window.CT2.models.Mod
     @patterns[pattern][row][channel].note_text = @note_from_text(note)
     @patterns[pattern][row][channel].sample = sample + 1
 
-  constructor: (data) ->
+  constructor: (data, callback) ->
+    if data.byteLength
+      @from_array_buffer(data)
+    else
+      @from_json(data)
+
+    _.defer(callback) if typeof(callback) == 'function'
+
+
+  base64ToInt8: (input) ->
+    bs = atob(input)
+    out = new Int8Array(bs.length)
+    for i in [0...bs.length]
+      out[i] = bs.charCodeAt(i)
+    out
+
+  from_json: (data) ->
+    console.log("loading json")
+    @name = data.name
+    @samples = data.samples
+    @patterns = data.patterns
+    @fix_patterns()
+    @patter_table_length = data.pattern_table.length
+    @pattern_table = data.pattern_table
+    @num_patterns = data.patterns.length
+    callbacks = []
+    for sample,i in @samples
+      if sample.length > 0
+        sample.data = @base64ToInt8(data.sample_data[i])
+      else
+        sample.data = []
+
+  fix_patterns: ->
+    for pattern in @patterns
+      for row in pattern
+        for note in row
+          note.note = @find_note(note.period)
+          note.note_text = @note_from_text(note.note)
+    
+
+  from_array_buffer: (data) ->
     @samples = []
     @patterns = []
     subdata = new Uint8Array(data, 1080, 4);
