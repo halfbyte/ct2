@@ -32,6 +32,9 @@ Ct2::Application.configure do
 
   # See everything in the log (default is :info)
   # config.log_level = :debug
+  config.logger = GELF::Logger.new("lvps46-163-76-165.dedicated.hosteurope.de", 12201, "WAN", { :facility => "cloudtracker-staging" })
+  config.colorize_logging = false
+
 
   # Prepend all log lines with the following tags
   config.log_tags = [ :uuid ]

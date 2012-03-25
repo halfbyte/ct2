@@ -15,7 +15,7 @@ gem 'bindata'
 
 gem 'jbuilder'
 gem 'unicorn'
-# gem 'gelf'
+gem 'gelf'
 # gem 'lograge'
 
 # Gems used only for assets and not required
@@ -35,8 +35,6 @@ group :development do
   gem 'capistrano'
   gem 'capistrano-ext'
   gem 'capistrano_rsync_with_remote_cache'
-  gem 'foreman'
-  gem 'thin'
 end
 
 group :test do
