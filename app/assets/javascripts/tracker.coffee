@@ -119,8 +119,13 @@ class window.CT2.views.AppView extends Backbone.View
     'click #pattern': 'play_pattern'
     'click #stop': 'stop'
     'click #edit': 'edit'
-
-
+    'click #disk-op': 'save'
+    'click .pattern_in_pos': 'pattern_in_pos'
+    'click .position.up': 'next_pos'
+    'click .position.down': 'prev_pos'
+    'click .num_patterns': 'num_patterns'
+    'click #insert': 'insert_pattern'
+    'click #delete': 'delete_pattern'
   json_loaded: (data) =>
     console.log(data.name)
     window.CT2.PlayerInstance.load_from_json(data, @loaded)
@@ -147,6 +152,39 @@ class window.CT2.views.AppView extends Backbone.View
   display_default_status: =>
     @$('#status').html("ALL RIGHT")
 
+  pattern_in_pos: (e) ->  
+    if $(e.target).hasClass('up')
+      window.CT2.PlayerInstance.module.pattern_table[@current_pos]++
+      if window.CT2.PlayerInstance.module.pattern_table[@current_pos] >= window.CT2.PlayerInstance.module.num_patterns
+        window.CT2.PlayerInstance.module.pattern_table[@current_pos] = window.CT2.PlayerInstance.module.num_patterns - 1
+    else if $(e.target).hasClass('down')
+      window.CT2.PlayerInstance.module.pattern_table[@current_pos]--
+      if window.CT2.PlayerInstance.module.pattern_table[@current_pos] < 0
+        window.CT2.PlayerInstance.module.pattern_table[@current_pos] = 0
+    @update_pattern_fields()
+
+  insert_pattern: ->
+    if window.CT2.PlayerInstance.module.pattern_table_length < 128
+      window.CT2.PlayerInstance.module.pattern_table.splice(@current_pos,0, 0)
+      window.CT2.PlayerInstance.module.pattern_table_length++
+    @update_pattern_fields()
+  delete_pattern: ->
+    if window.CT2.PlayerInstance.module.pattern_table_length > 1
+      window.CT2.PlayerInstance.module.pattern_table.splice(@current_pos,1)
+      window.CT2.PlayerInstance.module.pattern_table_length--
+    @update_pattern_fields()
+
+  num_patterns: (e) ->
+    console.log(e)
+    if $(e.target).hasClass('up')
+      window.CT2.PlayerInstance.module.pattern_table_length++
+      if window.CT2.PlayerInstance.module.pattern_table_length > 128
+        window.CT2.PlayerInstance.module.pattern_table_length = 128
+    else if $(e.target).hasClass('down')
+      window.CT2.PlayerInstance.module.pattern_table_length--
+      if window.CT2.PlayerInstance.module.pattern_table_length < 1
+        window.CT2.PlayerInstance.module.pattern_table_length = 1
+    @update_pattern_fields()
   edit: ->
     @set_mode('editing')
 
@@ -168,6 +206,20 @@ class window.CT2.views.AppView extends Backbone.View
   stop: ->
     window.CT2.PlayerInstance.stop()
     @set_mode('idle')
+
+  save: ->
+    @stop()
+    if @$('#trackerpane').data('url')
+      $.ajax({
+        url: @$('#trackerpane').data('url'),
+        data: 
+          data: JSON.stringify(window.CT2.PlayerInstance.module.as_json())
+        success: @saved,
+        type: 'PUT',
+      })
+
+  saved: =>
+    @display_status("Saved!")
 
   load_mod: (e) ->
     console.log("load")
@@ -215,7 +267,7 @@ class window.CT2.views.AppView extends Backbone.View
   update_pattern_fields: ->
     @$('#bpm').html(window.CT2.PlayerInstance.bpm)
     @$('#position_counter').html(@format_num(@current_pos, 4, 10))
-    @$('#num_patterns').html(@format_num(window.CT2.PlayerInstance.module.num_patterns, 4, 10))
+    @$('#num_patterns').html(@format_num(window.CT2.PlayerInstance.module.pattern_table_length, 4, 10))
     @$('#current_pattern span').html(@format_num(@current_pattern, 2, 10))
     @$('#pattern_in_pos').html(@format_num(window.CT2.PlayerInstance.module.pattern_table[@current_pos], 4, 10))
 

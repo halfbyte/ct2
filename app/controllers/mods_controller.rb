@@ -39,7 +39,10 @@ class ModsController < ApplicationController
 
   # patches a given module or replaces it (needs deep merge algo)
   def update
+    @mod = Mod.find(params[:id])
+    @mod.update_module(JSON.parse(params[:data]))
 
+    render :json => {ok: 'cheers mate'}
   end
 
 end

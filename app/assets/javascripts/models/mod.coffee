@@ -60,13 +60,20 @@ class window.CT2.models.Mod
       out[i] = bs.charCodeAt(i)
     out
 
+  int8ToBase64: (input) ->
+    out = ""
+    for i in [0...input.length]
+      out += String.fromCharCode((input[i] + 256) % 256)
+    btoa(out)
+
+
   from_json: (data) ->
     console.log("loading json")
     @name = data.name
     @samples = data.samples
     @patterns = data.patterns
     @fix_patterns()
-    @patter_table_length = data.pattern_table.length
+    @pattern_table_length = data.pattern_table_length
     @pattern_table = data.pattern_table
     @num_patterns = data.patterns.length
     callbacks = []
@@ -75,6 +82,8 @@ class window.CT2.models.Mod
         sample.data = @base64ToInt8(data.sample_data[i])
       else
         sample.data = []
+  
+
 
   fix_patterns: ->
     for pattern in @patterns
@@ -83,6 +92,14 @@ class window.CT2.models.Mod
           note.note = @find_note(note.period)
           note.note_text = @note_from_text(note.note)
     
+
+  as_json: ->
+    name: @name
+    samples: ({name: sample.name, length: sample.length, repeat: sample.repeat, replen: sample.replen, finetune: sample.finetune, volume: sample.volume} for sample in @samples)
+    pattern_table_length: @pattern_table_length
+    pattern_table: @pattern_table
+    patterns: @patterns
+    sample_data: (@int8ToBase64(sample.data) for sample in @samples)
 
   from_array_buffer: (data) ->
     @samples = []
