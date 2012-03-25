@@ -86,8 +86,7 @@ class window.CT2.views.AppView extends Backbone.View
     40: 'down'
     112: 'lower_octave'
     113: 'upper_octave'
-
-
+    189: 'delete_note'
 
   initialize: ->
     @setElement('body');
@@ -294,6 +293,12 @@ class window.CT2.views.AppView extends Backbone.View
   lower_octave: ->
     @current_octave = 0
     @display_status('Octave: lo')
+
+  delete_note: (event) ->
+    event.preventDefault()
+    if @mode == 'editing'
+      CT2.PlayerInstance.module.delete_note(@current_pattern, @current_row, @current_channel)
+      window.CT2.trackerView.render_current_pattern();
 
   up: ->
     @current_row--

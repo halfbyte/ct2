@@ -63,6 +63,11 @@ class window.CT2.models.Mod
     @patterns[pattern][row][channel].note_text = @note_from_text(note)
     @patterns[pattern][row][channel].sample = sample + 1
 
+  delete_note: (pattern, row, channel) ->
+    @patterns[pattern][row][channel].note = 0
+    @patterns[pattern][row][channel].note_text = '---'
+    @patterns[pattern][row][channel].sample = 0
+
   constructor: (data, callback) ->
     if data.byteLength
       @from_array_buffer(data)
