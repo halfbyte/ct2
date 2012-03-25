@@ -160,7 +160,10 @@ class window.CT2.views.AppView extends Backbone.View
     if $(e.target).hasClass('up')
       window.CT2.PlayerInstance.module.pattern_table[@current_pos]++
       if window.CT2.PlayerInstance.module.pattern_table[@current_pos] >= window.CT2.PlayerInstance.module.num_patterns
-        window.CT2.PlayerInstance.module.pattern_table[@current_pos] = window.CT2.PlayerInstance.module.num_patterns - 1
+        if window.CT2.PlayerInstance.module.num_patterns < 128
+          window.CT2.PlayerInstance.module.add_pattern()
+        else
+          window.CT2.PlayerInstance.module.pattern_table[@current_pos] = window.CT2.PlayerInstance.module.num_patterns - 1
     else if $(e.target).hasClass('down')
       window.CT2.PlayerInstance.module.pattern_table[@current_pos]--
       if window.CT2.PlayerInstance.module.pattern_table[@current_pos] < 0
@@ -335,8 +338,9 @@ class window.CT2.views.AppView extends Backbone.View
 
   next_pattern: ->
     @current_pattern++
-    if @current_pattern >= window.CT2.PlayerInstance.num_patterns
-      @current_pattern = window.CT2.PlayerInstance.num_patterns - 1
+    if @current_pattern >= window.CT2.PlayerInstance.module.num_patterns
+      @current_pattern = window.CT2.PlayerInstance.module.num_patterns - 1
+      console.log(@current_pattern)
     @update_tracker()
 
   next_sample: ->

@@ -91,6 +91,23 @@ class window.CT2.models.Mod
     btoa(out)
 
 
+  add_pattern: ->
+    pattern = []
+    for rownum in [0..63]
+      row = []
+      for notenum in [0..3]
+        row[notenum] = {
+          note: 0
+          period: 0
+          note_text: '---'
+          command: 0
+          command_params: 0
+        }
+      pattern[rownum] = row
+    @patterns[@num_patterns] = pattern
+    @num_patterns++
+
+
   from_json: (data) ->
     console.log("loading json")
     @name = data.name
