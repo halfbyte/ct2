@@ -12,9 +12,9 @@ gem 'jquery-rails'
 gem 'haml'
 gem 'haml-rails'
 gem 'bindata'
-gem 'carrierwave'
+
 gem 'jbuilder'
-gem 'unicorn', '4.1.1'
+gem 'unicorn'
 # gem 'gelf'
 # gem 'lograge'
 
@@ -49,3 +49,6 @@ end
 group :development, :test do
   gem 'rspec-rails'
 end
+
+gem 'carrierwave'
+
