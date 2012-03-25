@@ -358,11 +358,13 @@ class window.CT2.views.AppView extends Backbone.View
 
   finetune_up: (event) ->
     event.preventDefault()
-    console.log('NOOP')
+    window.CT2.PlayerInstance.module.finetune_up(@current_sample)
+    @update_sample_fields()
 
   finetune_down: (event) ->
     event.preventDefault()
-    console.log('NOOP')
+    window.CT2.PlayerInstance.module.finetune_down(@current_sample)
+    @update_sample_fields()
 
   prev_pattern: ->
     @current_pattern--

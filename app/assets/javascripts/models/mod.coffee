@@ -47,6 +47,17 @@ class window.CT2.models.Mod
   volume_down: (sample) ->
     @set_volume(sample, @samples[sample].volume - 1)
 
+  set_finetune: (sample, finetune) ->
+    if finetune >= -8 && finetune <= 7
+      @samples[sample].finetune = finetune
+    console.log(@samples[sample].finetune)
+
+  finetune_up: (sample) ->
+    @set_finetune(sample, @samples[sample].finetune + 1)
+
+  finetune_down: (sample) ->
+    @set_finetune(sample, @samples[sample].finetune - 1)
+
   set_note: (pattern, row, channel, note, sample) ->
     @patterns[pattern][row][channel].note = note
     @patterns[pattern][row][channel].note_text = @note_from_text(note)
@@ -90,7 +101,7 @@ class window.CT2.models.Mod
         sample.data = @base64ToInt8(data.sample_data[i])
       else
         sample.data = []
-  
+
 
 
   fix_patterns: ->
