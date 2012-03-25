@@ -14,7 +14,7 @@ gem 'haml-rails'
 gem 'bindata'
 gem 'carrierwave'
 gem 'jbuilder'
-gem 'unicorn'
+gem 'unicorn', '4.1.1'
 # gem 'gelf'
 # gem 'lograge'
 
