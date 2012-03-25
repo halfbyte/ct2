@@ -1,6 +1,6 @@
 class window.CT2.models.Mod
   # convert array of charcodes to sting
-  # seems to magically work.  
+  # seems to magically work.
   NOTES: ['C-', 'C#', 'D-', 'D#', 'E-', 'F-', 'F#', 'G-', 'G#', 'A-', 'A#', 'B-', 'B#']
   atos: (a) ->
     s = String.fromCharCode(a...).replace(/\x00/g, '')
@@ -37,7 +37,15 @@ class window.CT2.models.Mod
   set_command_param_lo: (p, r, c, n) ->
     @patterns[p][r][c].command_params = (@patterns[p][r][c].command_params & 0xf0) | (n & 0xf)
 
+  set_volume: (sample, volume) ->
+    if volume >= 0 && volume <= 64
+      @samples[sample].volume = volume
 
+  volume_up: (sample) ->
+    @set_volume(sample, @samples[sample].volume + 1)
+
+  volume_down: (sample) ->
+    @set_volume(sample, @samples[sample].volume - 1)
 
   set_note: (pattern, row, channel, note, sample) ->
     @patterns[pattern][row][channel].note = note
@@ -91,7 +99,7 @@ class window.CT2.models.Mod
         for note in row
           note.note = @find_note(note.period)
           note.note_text = @note_from_text(note.note)
-    
+
 
   as_json: ->
     name: @name
@@ -123,7 +131,7 @@ class window.CT2.models.Mod
       @pattern_table_length = pattern_data[0]
       @pattern_table = new Uint8Array(data, 952, 128)
       @num_patterns = _.max(@pattern_table)
-      
+
       for p in [0..@num_patterns]
         pattern = []
         pattern_data = new Uint8Array(data, 1084 + (p * 1024), 1024)
@@ -131,7 +139,7 @@ class window.CT2.models.Mod
           step = []
           for c in [0..3]
             note = {}
-            note.raw_data = [pattern_data[(s * 16) + (c * 4)], pattern_data[(s * 16) + (c * 4) + 1], pattern_data[(s * 16) + (c * 4) + 2], pattern_data[(s * 16) + (c * 4) + 3]] 
+            note.raw_data = [pattern_data[(s * 16) + (c * 4)], pattern_data[(s * 16) + (c * 4) + 1], pattern_data[(s * 16) + (c * 4) + 2], pattern_data[(s * 16) + (c * 4) + 3]]
             note.period = ((pattern_data[(s * 16) + (c * 4)] & 0x0F) << 8) + (pattern_data[(s * 16) + (c * 4) + 1] & 0xF0) + (pattern_data[(s * 16) + (c * 4) + 1] & 0x0F)
             note.note = @find_note(note.period)
             note.note_text = @note_from_text(note.note)

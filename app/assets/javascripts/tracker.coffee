@@ -109,7 +109,7 @@ class window.CT2.views.AppView extends Backbone.View
 
     if @$('#trackerpane').data('url')
       $.getJSON(@$('#trackerpane').data('url'), {}, @json_loaded)
-        
+
 
 
   events:
@@ -126,6 +126,13 @@ class window.CT2.views.AppView extends Backbone.View
     'click .num_patterns': 'num_patterns'
     'click #insert': 'insert_pattern'
     'click #delete': 'delete_pattern'
+    'click #finetune-up': 'finetune_up'
+    'click #finetune-down': 'finetune_down'
+    'click #sample-up': 'next_sample'
+    'click #sample-down': 'prev_sample'
+    'click #volume-up': 'volume_up'
+    'click #volume-down': 'volume_down'
+
   json_loaded: (data) =>
     console.log(data.name)
     window.CT2.PlayerInstance.load_from_json(data, @loaded)
@@ -136,8 +143,6 @@ class window.CT2.views.AppView extends Backbone.View
     if str.length < l
       str  = "00000000000000000000000000000".substr(0,l - str.length) + str
     str
-
-
 
   pad_with_underscores: (s, l) ->
     str = s
@@ -152,7 +157,7 @@ class window.CT2.views.AppView extends Backbone.View
   display_default_status: =>
     @$('#status').html("ALL RIGHT")
 
-  pattern_in_pos: (e) ->  
+  pattern_in_pos: (e) ->
     if $(e.target).hasClass('up')
       window.CT2.PlayerInstance.module.pattern_table[@current_pos]++
       if window.CT2.PlayerInstance.module.pattern_table[@current_pos] >= window.CT2.PlayerInstance.module.num_patterns
@@ -212,7 +217,7 @@ class window.CT2.views.AppView extends Backbone.View
     if @$('#trackerpane').data('url')
       $.ajax({
         url: @$('#trackerpane').data('url'),
-        data: 
+        data:
           data: JSON.stringify(window.CT2.PlayerInstance.module.as_json())
         success: @saved,
         type: 'PUT',
@@ -300,7 +305,7 @@ class window.CT2.views.AppView extends Backbone.View
 
   advance: (step) ->
     @current_row = (@current_row + step) % 64
-    @update_tracker()    
+    @update_tracker()
 
   right: (e) ->
     console.log()
@@ -340,6 +345,24 @@ class window.CT2.views.AppView extends Backbone.View
       @current_pos = window.CT2.PlayerInstance.module.pattern_table.length - 1
     @update_pattern_fields()
     window.CT2.PlayerInstance.cur_pos = @current_pos
+
+  volume_up: (event) ->
+    event.preventDefault()
+    window.CT2.PlayerInstance.module.volume_up(@current_sample)
+    @update_sample_fields()
+
+  volume_down: (event) ->
+    event.preventDefault()
+    window.CT2.PlayerInstance.module.volume_down(@current_sample)
+    @update_sample_fields()
+
+  finetune_up: (event) ->
+    event.preventDefault()
+    console.log('NOOP')
+
+  finetune_down: (event) ->
+    event.preventDefault()
+    console.log('NOOP')
 
   prev_pattern: ->
     @current_pattern--
@@ -412,7 +435,7 @@ class window.CT2.views.AppView extends Backbone.View
   data_input:(e) ->
     num = parseInt(String.fromCharCode(e.which), 16)
     return if _.isNaN(num)
-    
+
     switch @current_col
       when 1
         if num < 2
@@ -445,7 +468,7 @@ class window.CT2.views.AppView extends Backbone.View
       window.CT2.trackerView.render_current_pattern();
 
       @advance(@editstep)
-      console.log("insert note:", note);  
+      console.log("insert note:", note);
 
   set_mode: (mode) ->
     @mode = mode
