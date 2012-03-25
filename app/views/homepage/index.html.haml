@@ -1,131 +1,45 @@
-#trackerpane
-  #position Pos
-  #insert I
-  #delete D
-  #position_counter 0000
-  .up= up
-  .down= down
-  #play Play
-  #stop Stop
-  #playlist Plist
-  #channel-one 1
+%section.marketing
+  %h1 Cloudtracker 2.0
 
-  #pattern_length Pattern Length
-  #pattern_in_pos.foo 0000
-  .up= up
-  .down= down
-  #pattern Pattern
-  #clear Clear
-  #preset-editor PSET-ED
-  #channel-two 2
+  %p
+    At one point in time, the fine folks at 
+    %a(href="http://mindmatters.de/") mindmatters
+    built a social media monitoring tool called "Cloudtracker"
+  %p.spaced
+    Unfortunately, that didn't really work out, 
+    %em so we pivoted.
 
-  #num_patterns 0000
-  .up= up
-  .down= down
-  #edit Edit
-  #edit-op Edit Op.
-  #setup Setup
-  #channel-three 3
+  %p
+    Cloudtracker 2.0 is an experiment in web audio technologies, as well
+    as a celebration of an almost forgotten genre of music software:
+    %strong The Tracker
+  %p
+    Karsten Obarski published his first version of "The Ultimate Soundtracker" almost exactly 25 years ago.
+  %p
+    Five years later, Protracker saw the light of the world, an open source, freely available music editor
+    that quickly became popular in the AMIGA scene.
+  %p
+    Now, 20 years later, we're able to show you a running (albeit incomplete) version of Protracker, running in your browser!
 
-  #sample_data
-    %ol
-      %li Finetune
-      %li Sample
-      %li Volume
-      %li Length
-      %li Repeat
-      %li Replen
-  #sample_finetune.foo 0000
-  .up= up
-  .down= down
-  #record Record
-  #disk-op Disk Op.
-  #sampler Sampler
-  #channel-four 4
+  %h2 Compatibility notes
 
-  #sample_number.foo 0000
-  .up= up
-  .down= down
-  #quadrascope Quadrascope
+  %p
+    Cloudtracker needs a new-ish version of Chrome or Firefox, since it uses Audio APIs and other HTML5 technologies only
+    available in these two browsers. That will hopefully change over time.
 
-  #finetune-foo-container 
-    #sample_volume.foo 0000
-    .up= up
-    .down= down
+  %h2 Go!
 
-    #sample_length.foo 0000
-    .up= up
-    .down= down
+  %p
+    For several reasons, we cannot offer uploading your own modules so far, but this will change soon. Please take a look at these fine modules, though:
+  %p
+    %em
+      (You can actually edit AND save these mods. Use carefully. This is, so far, only a proof of concept.)
 
-    #sample_repeat.foo 0000
-    .up= up
-    .down= down
+  %ul.modlist
+    - @public_mods.each do |mod|
+      - begin
+        %li
+          = link_to mod.protracker_module.name.snapshot, mod
+          (#{link_to 'download', mod.mod_file_url})
+      - rescue Errno::ENOENT
 
-    #sample_replen.foo 0000
-    .up= up
-    .down= down
-
-  #scope-one.scope-container
-    .scope-no 1
-    .scope-area &nbsp;
-  #scope-two.scope-container
-    .scope-no 2
-    .scope-area &nbsp;
-  #scope-three.scope-container
-    .scope-no 3
-    .scope-area &nbsp;
-  #scope-four.scope-container
-    .scope-no 4
-    .scope-area &nbsp;
-  .scope-no &nbsp;
-
-  #about
-    cloudtracker
-
-  #songname
-    %span#song-number
-    %span.label Songname:
-    %span#name Banana Split________
-    %span#length 00:00
-
-
-  #samplename-container
-    %span.label Samplename:
-    %span#samplename
-
-  #load Load
-
-  #status-and-boxes
-    #status-bar
-      #current_pattern
-        %span 00
-      #tempo
-        #bpm 125
-        #control
-          #control-up &#x25B2;
-          %span.label Tempo
-          #control-down &#x25BC;
-      #status-label Status:
-      #status
-      #whatever
-        .whatever
-          %span.label Tune
-          %span.counter 304558
-        .whatever
-          %span.label Free
-          %span.counter 624358
-    #boxes-and-tracker
-      #boxes
-        #box-one.box.small
-        #box-two.box.normal
-        #box-three.box.normal
-        #box-four.box.normal
-        #box-five.box.normal
-
-%label
-  Load MOD File
-  %input{:id => 'modfile', :type => 'file'}
-
-#debug-out
-
-#cursor
