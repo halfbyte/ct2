@@ -16,7 +16,7 @@ gem 'bindata'
 gem 'jbuilder'
 gem 'unicorn'
 gem 'gelf'
-# gem 'lograge'
+gem 'lograge'
 
 # Gems used only for assets and not required
 # in production environments by default.
