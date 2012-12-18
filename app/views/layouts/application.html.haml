@@ -7,5 +7,22 @@
   = stylesheet_link_tag "application"
   = yield :head
 %body
-  = yield
+  %header.header-line
+    %h1.logo
+      = link_to "cloudtracker 2.0", root_path
+    .user-account
+      - if signed_in?
+        Hallo,
+        = link_to current_user.nickname, current_user
+        = link_to image_tag('btn-disconnect-s.png'), logout_path, :method => :delete
+      - else
+        = link_to image_tag('btn-connect-s.png'), '/auth/soundcloud'
+  .main
+    = yield
+
+  %footer
+    %p
+      (c) cloudtracker 2.0 team
+    %p
+      = link_to "fork me on github.com", "https://github.com/halfbyte/ct2"
   

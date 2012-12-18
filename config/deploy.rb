@@ -1,52 +1,35 @@
-require 'capistrano/ext/multistage'
-require "bundler/capistrano"
+set :application, "ct2"
+set :repository,  "git@github.com:halfbyte/bookworm.git"
 
-# Add RVM's lib directory to the load path.
-$:.unshift(File.expand_path('./lib', ENV['rvm_path']))
+set :scm, :git # You can set :scm explicitly or Capistrano will make an intelligent guess based on known version control directory names
+# Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
 
-# Load RVM's capistrano plugin.
-require "rvm/capistrano"
+set :rvm_ruby_string, '1.9.3@ct2'
 
-set :rvm_ruby_string, 'ruby-1.9.2-p318'
-set :rvm_type, :user
+set :deploy_to, '/srv/ct2'
+set :user, 'ct2'
 
-server "46.163.76.165", :web, :app, :db, primary: true
-
-set :application, "cloudtracker"
-set :user, "cloudtracker"
-
-set :stages, %w(staging production)
-set :default_stage, 'staging'
-
-set :deploy_via, :rsync_with_remote_cache
 set :use_sudo, false
 
-set :scm, "git"
-set :repository, "git@github.com:halfbyte/ct2.git"
-set :branch, "master"
+role :web, "vetinari.krutisch.de"                          # Your HTTP server, Apache/etc
+role :app, "vetinari.krutisch.de"                          # This may be the same as your `Web` server
+role :db,  "vetinari.krutisch.de", :primary => true # This is where Rails migrations will run
 
-set :port, 54321
+require "rvm/capistrano"
+require 'capistrano-unicorn'
+require "bundler/capistrano"
 
-default_run_options[:pty] = true
-ssh_options[:forward_agent] = true
-ssh_options[:port] = 54321
 
-after "deploy", "deploy:cleanup" # keep only the last 5 releases
-
-namespace :deploy do
-  task :symlink_config, roles: :app do
-    run "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
-    run "ln -nfs #{shared_path}/uploads #{release_path}/public/uploads"
-  end
-  after "deploy:finalize_update", "deploy:symlink_config"
-
-  desc "Make sure local git is in sync with remote."
-  task :check_revision, roles: :web do
-    unless `git rev-parse HEAD` == `git rev-parse origin/master`
-      puts "WARNING: HEAD is not the same as origin/master"
-      puts "Run `git push` to sync changes."
-      exit
-    end
-  end
-  before "deploy", "deploy:check_revision"
+task :set_symlinks do
+  run "rm #{release_path}/config/database.yml"
+  run "ln -s #{shared_path}/config/database.yml #{release_path}/config/database.yml"
 end
+
+after 'deploy:update_code', :set_symlinks
+
+# if you want to clean up old releases on each deploy uncomment this:
+# after "deploy:restart", "deploy:cleanup"
+
+after 'deploy:restart', 'unicorn:restart'
+after 'deploy:start', 'unicorn:start'
+after 'deploy:stop', 'unicorn:stop'

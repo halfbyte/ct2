@@ -1,4 +1,4 @@
-#trackerpane(data-url="#{mod_path(@mod, format: :json)}")
+#trackerpane(data-url="#{user_mod_path(@user, @mod, format: :json)}")
   #position Pos
   #insert I
   #delete D
@@ -121,11 +121,5 @@
         #box-three.box.normal
         #box-four.box.normal
         #box-five.box.normal
-
-%label
-  Load MOD File
-  %input{:id => 'modfile', :type => 'file'}
-
-#debug-out
 
 #cursor

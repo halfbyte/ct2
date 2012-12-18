@@ -3,6 +3,7 @@ class Mod < ActiveRecord::Base
   mount_uploader :mod_file, ModFileUploader
 
   attr_accessible :mod_file
+  belongs_to :user
 
   def protracker_module
     mod = nil

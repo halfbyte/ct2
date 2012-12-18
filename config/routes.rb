@@ -1,5 +1,19 @@
 Ct2::Application.routes.draw do
-  resources :mods
+  resources :samples
+
+  get "users/index"
+
+  get "users/show"
+
+  resources :users, :only => [:index, :show] do
+    resources :mods
+  end
+
+  # resources :mods
+
+  match '/auth' => 'sessions#new', :as => 'login'
+  match '/logout' => 'sessions#destroy', :as => 'logout', :via => :delete
+  match '/auth/:provider/callback' => 'sessions#create'
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

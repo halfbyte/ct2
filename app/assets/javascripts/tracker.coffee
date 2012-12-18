@@ -20,8 +20,8 @@ class window.CT2.views.PatternView extends Backbone.View
     @change_to_row(@current_row + n)
 
   change_to_row: (row) ->
-    row_to_start = 4
-    line_height = -36
+    row_to_start = 7
+    line_height = -18
     @current_row = row
     @current_row = 63 if @current_row < 0
     @current_row = 0 if @current_row > 63
@@ -256,10 +256,10 @@ class window.CT2.views.AppView extends Backbone.View
       window.CT2.trackerView.move_to(@current_pattern, window.CT2.PlayerInstance.cur_row)
 
   update_cursor: ->
-    char_width = 30
-    box_width = 216
-    offset = 84
-    channel_step_size = 43
+    char_width = 20
+    box_width = 149
+    offset = 69
+    channel_step_size = 23
     x = offset + (@current_channel * box_width) + (@current_col * char_width) + (if @current_col > 0 then char_width*2 else 0) + (@current_channel * channel_step_size)
     @$('#cursor').css('left', x)
 

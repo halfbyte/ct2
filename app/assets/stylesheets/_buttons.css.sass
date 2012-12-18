@@ -1,3 +1,13 @@
+#cursor
+  height: $factor * 10px
+  width: $factor * 10px
+  position: absolute
+  top: $factor * 237px
+  left: 84px
+  border: ($factor * 2px) solid red
+
+
+
 #position, #position_counter, .foo, #load, #num_patterns
   +tb_small
 
@@ -78,7 +88,6 @@
   +tb_height(2)
   line-height: calculate_height(1) + (2 * $factor)
   #status
-    font-size: 27px
     +dark_text
 
 #current_pattern
@@ -129,7 +138,7 @@
   padding-bottom: 2 * $factor#{px}
   .box
     +float-left
-    +tb_height(9)
+    height: 9px * $factor * 15 + 6px
     +hover_border_styles
     background-color: black
     font-size: 24px

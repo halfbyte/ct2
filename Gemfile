@@ -18,6 +18,9 @@ gem 'unicorn'
 gem 'gelf'
 gem 'lograge'
 
+gem 'omniauth-soundcloud'
+gem 'unicorn'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
@@ -32,20 +35,23 @@ group :assets do
 end
 
 group :development do
-  gem 'capistrano'
-  gem 'capistrano-ext'
-  gem 'capistrano_rsync_with_remote_cache'
+  gem 'capistrano', :require => false
+  gem 'capistrano-unicorn', :require => false
+  gem 'rvm-capistrano', :require => false
+  gem 'foreman'
 end
 
 group :test do
   gem 'rake'
   gem 'capybara'
-  gem 'capybara-webkit'
   gem 'launchy'
+  gem 'poltergeist'
+  gem 'database_cleaner'
 end
 
 group :development, :test do
   gem 'rspec-rails'
+  gem 'konacha'
 end
 
 gem 'carrierwave'

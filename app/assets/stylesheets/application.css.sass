@@ -4,26 +4,23 @@
 @import "compass/utilities"
 @import "compass/css3"
 
+@import "partials/colors"
+
 +font-face("C64 User Mono", font-files("C64_User_Mono_v1.0-STYLE.woff", "C64_User_Mono_v1.0-STYLE.ttf"), "C64_User_Mono_v1.0-STYLE.eot", 400, normal)
 
-$default-font-size: 26px
+$default-font-size: 16px
 
 body
+  background: $ct-background-color
   cursor: url('pointer-gray.png'), auto
 body.playing_mode
   cursor: url('pointer-yellow.png'), auto
 body.editing_mode
   cursor: url('pointer-blue.png'), auto
 
-#cursor
-  height: 40px
-  width: 33px
-  background: transparent url(cursor.png)
-  position: absolute
-  top: 616px
-  left: 84px
 
 $standard-font: "C64 User Mono", "Menlo", "Courier New", monospaced
+$ct-base-font: "C64 User Mono", "Menlo", "Courier New", monospaced
 
 @import "partials/buttons"
 @import "buttons"
@@ -32,8 +29,39 @@ $standard-font: "C64 User Mono", "Menlo", "Courier New", monospaced
 
 #trackerpane
   +trackerpane-width
+  height: 600px
 
 #playcontrol
   color: #ccc
   &.active
     color: #000
+
+.header-line
+  background: #ccc
+  height: 12px
+  padding: 2px 10px
+  font-size: 10px
+  line-height: 12px
+  font-family: $standard-font
+  border-bottom: 1px solid black
+  .logo
+    float: left
+    width: 300px
+  .user-account
+    img
+      vertical-align: top
+    text-align: right
+    float: right
+    width: 300px
+
+.main
+  background: #000
+  padding: 1em
+  // position: absolute
+
+footer
+  border-top: 1px solid black
+  background: #ccc
+  font-family: $standard-font
+  font-size: 10px
+  padding: 2px 10px

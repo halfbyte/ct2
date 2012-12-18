@@ -36,13 +36,7 @@ describe ProtrackerModule do
 
   describe "sample data" do
     it "should load the samples correctly" do
-      @module.sample_data[0].length.should == @module.samples[0].len.snapshot
+      @module.sample_data[0].length.should == (@module.samples[0].len.snapshot * 2)
     end
   end
-
-
-  describe "the end" do
-    puts @module.foo
-  end
-
 end

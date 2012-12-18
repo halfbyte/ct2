@@ -1,0 +1,8 @@
+%section.overview
+  %h1= @user.nickname
+
+  %ul.mods
+    - @user.mods.each do |mod|
+      %li= link_to mod.protracker_module.name, user_mod_path(current_user, mod)
+    - if signed_in? && @user == current_user
+      %li= link_to "Upload new module", new_user_mod_path(current_user)

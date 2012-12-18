@@ -5,8 +5,7 @@ script: "DISPLAY=:99.0 bundle exec rake"
 notifications:
   email:
     - sven.steinheisser@gmail.com
+    - jan@krutisch.de
 language: ruby
 rvm:
-  - 1.8.7
-  - 1.9.2
   - 1.9.3

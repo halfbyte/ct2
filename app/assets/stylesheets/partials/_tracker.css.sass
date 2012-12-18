@@ -2,6 +2,10 @@
   width: $pane-width - 6px
   font-family: $standard-font
   font-size: $default-font-size
+  height: 9px * $factor * 15 + 5px
+  overflow: hidden
+  position: absolute
+
   .pattern
     position: absolute
     top: 0
@@ -10,9 +14,11 @@
     .row
       +clearfix
       color: #fff
-      height: calculate_height(1) + (2 * $factor)
-      line-height: calculate_height(1) + (2 * $factor)
+      height: 9px * $factor
+      line-height: 9px * $factor
       &.active
+        height: 12px * $factor
+        line-height: 12px * $factor
         .row-num, .cell
           +dark_text
           +border_styles

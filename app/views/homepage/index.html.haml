@@ -2,11 +2,11 @@
   %h1 Cloudtracker 2.0
 
   %p
-    At one point in time, the fine folks at 
+    At one point in time, the fine folks at
     %a(href="http://mindmatters.de/") mindmatters
     built a social media monitoring tool called "Cloudtracker"
   %p.spaced
-    Unfortunately, that didn't really work out, 
+    Unfortunately, that didn't really work out,
     %em so we pivoted.
 
   %p
@@ -26,20 +26,4 @@
   %p
     Cloudtracker needs a new-ish version of Chrome or Firefox, since it uses Audio APIs and other HTML5 technologies only
     available in these two browsers. That will hopefully change over time.
-
-  %h2 Go!
-
-  %p
-    For several reasons, we cannot offer uploading your own modules so far, but this will change soon. Please take a look at these fine modules, though:
-  %p
-    %em
-      (You can actually edit AND save these mods. Use carefully. This is, so far, only a proof of concept.)
-
-  %ul.modlist
-    - @public_mods.each do |mod|
-      - begin
-        %li
-          = link_to mod.protracker_module.name.snapshot, mod
-          (#{link_to 'download', mod.mod_file_url})
-      - rescue Errno::ENOENT
 
