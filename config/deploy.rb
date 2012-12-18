@@ -21,8 +21,9 @@ require "bundler/capistrano"
 
 
 task :set_symlinks do
-  run "rm #{release_path}/config/database.yml"
+  # run "rm #{release_path}/config/database.yml"
   run "ln -s #{shared_path}/config/database.yml #{release_path}/config/database.yml"
+  run "ln -s #{shared_path}/uploads #{release_path}/public/uploads"
 end
 
 after 'deploy:update_code', :set_symlinks
