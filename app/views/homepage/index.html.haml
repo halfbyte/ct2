@@ -24,6 +24,24 @@
   %h2 Compatibility notes
 
   %p
-    Cloudtracker needs a new-ish version of Chrome or Firefox, since it uses Audio APIs and other HTML5 technologies only
-    available in these two browsers. That will hopefully change over time.
+    Cloudtracker needs a decent version of Chrome or Safari (>= 6), since it uses the Web Audio API and other HTML5 technologies currently only
+    available in these two browsers. That will hopefully change over time (The Firefox team already started to implement the Web Audio API.)
+
+  %p
+    Since the editor does some pretty heavy and inefficient DOM wrangling, this will currently not work on mobile devices. I am working on a player
+    interface that will allow you to play back the tunes on at least mobile webkit on iOS 6+ and Chrome on Android 4+
+
+  %h2 Usage
+
+  %p
+    You can log in using soundcloud and then upload any 4-Channel Protracker mod file as a starting point. I'm working on more editing functions,
+    but currently that's the only way to start. You can also listen to one of my example files, but you can't save them (although the editor tells you you can.)
+
+  %ul
+    %li
+      %a(href="http://cloudtracker.fm/users/halfbyte/mods/3") My Own Thing (House basterd)
+    %li
+      %a(href="http://cloudtracker.fm/users/halfbyte/mods/5") Symposium Go?
+
+
 
