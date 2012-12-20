@@ -112,12 +112,12 @@ var SoundBridgeWebAudio = function(channels, sampleRate, onReady) {
   
   if (typeof webkitAudioContext !== 'undefined') {
     context = new webkitAudioContext();
-    jsNode = context.createJavaScriptNode(4096, 0, channels);
+    jsNode = context.createJavaScriptNode(4096, 1, channels);
     jsNode.connect(context.destination);
     that.log("I'm on webkit.");
   } else if (typeof AudioContext !== 'undefined') {
     context = new AudioContext();
-    jsNode = context.createJavaScriptNode(8192, 0, channels);
+    jsNode = context.createJavaScriptNode(8192, 1, channels);
     jsNode.connect(context.destination);
     that.log("I'm on web audio api, not namespaced");
   } else {
