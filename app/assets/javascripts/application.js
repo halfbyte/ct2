@@ -15,7 +15,6 @@
 //= require json2
 //= require underscore
 //= require handlebars
-//= require soundbridge
 //= require backbone
 
 //= require jquery_extensions

@@ -4,21 +4,20 @@ window.CT2.player.clamp = (x, min, max) ->
   Math.max(min, Math.min(max, x))
 
 class window.CT2.player.MixerVoice
-  constructor: ->
+  constructor: (sr)->
     @sample_len = 0
     @loop_len = 0
     @period = 65535
     @volume = 0
     @pos =  0.0
     @sample = null
+    @sampleRate = sr
 
   render: (buffer, offset, samples) ->
     return if !@sample
-
-
     for i in [0...samples]
 
-      @pos += (3740000.0/ @period) /(48000.0)
+      @pos += (3740000.0/ @period) /(@sampleRate)
 
       int_pos = Math.floor(@pos)
       if int_pos >= @sample_len 
@@ -42,12 +41,10 @@ class window.CT2.player.MixerVoice
 
 class window.CT2.player.Mixer
 
-  PAULARATE: 3740000
-  OUTRATE: 48000
-  constructor: ->
+  constructor: (sr)->
     @voices = []
     for i in [0..3]
-      @voices.push(new window.CT2.player.MixerVoice())
+      @voices.push(new window.CT2.player.MixerVoice(sr))
     @master_volume = 0.66
     @master_separation = 0.5
 
@@ -107,10 +104,12 @@ class window.CT2.player.Player
   constructor: ->
     @module = null
     @channels = []
+    @context = new webkitAudioContext()
+
     for i in [0..3]
       @channels.push(new window.CT2.player.Channel(this))
 
-    @mixer = new window.CT2.player.Mixer()
+    @mixer = new window.CT2.player.Mixer(@context.sampleRate)
     @calc_ptable()
     @calc_vibtable()
     @bpm = 125
@@ -118,19 +117,35 @@ class window.CT2.player.Player
     @cur_pos = 0
     @cur_pattern = 0
     @playing = false
-    @soundbridge = SoundBridge(2, 48000, '/javascripts/vendor/');
-    window.setTimeout(
-      =>
-        @soundbridge.setCallback(@soundbridge_render)
-        @soundbridge.play()
-      1000
-    )
+    @separation = 0.7
+    @splitter = @context.createChannelSplitter(2)
+    @merger = @context.createChannelMerger(2)
+    @gain_rtl = @context.createGainNode()
+    @gain_rtr = @context.createGainNode()
+    @gain_ltl = @context.createGainNode()
+    @gain_ltr = @context.createGainNode()
+
+    @gain_rtl.gain.value = 1.0 - @separation
+    @gain_ltr.gain.value = 1.0 - @separation
+    @gain_rtr.gain.value = @separation
+    @gain_ltl.gain.value = @separation
+
+    @splitter.connect(@gain_ltl, 0)
+    @splitter.connect(@gain_ltr, 0)
+    @splitter.connect(@gain_rtl, 1)
+    @splitter.connect(@gain_rtr, 1)
+
+    @gain_rtl.connect(@merger, 0, 0)
+    @gain_ltl.connect(@merger, 0, 0)
+    @gain_ltr.connect(@merger, 0, 1)
+    @gain_rtr.connect(@merger, 0, 1)
+
+    @merger.connect(@context.destination)
+    @OUTRATE = @context.sampleRate
 
 
-
-
+    # @prep_nodes()
   
-  OUTRATE: 48000
   OUTFPS: 50
 
   channels: []
@@ -146,12 +161,12 @@ class window.CT2.player.Player
 
   load_from_json: (json, callback) =>
     
-    finished = ->
-      
+    finished = =>
+      @reset()  
       callback()
 
     @module = new window.CT2.models.Mod(json, finished);
-  
+    
 
   load_from_local_file: (file, callback)->
     reader = new FileReader()
@@ -175,6 +190,7 @@ class window.CT2.player.Player
     "LOADING #{file}"
 
   play: ->
+    @prep_nodes()
     @playing = true
     @pattern_only = false
     @cur_row = 0
@@ -182,6 +198,8 @@ class window.CT2.player.Player
 
   # play current patter
   play_pattern: (pattern)->
+    @prep_nodes()
+
     @cur_pattern = pattern
     @pattern_only = true
     @playing = true
@@ -189,19 +207,30 @@ class window.CT2.player.Player
     console.log 'PLAYING PATTERN', pattern
 
   stop: ->
+    # @stop_nodes()
     @playing = false
     for ch in [0..3]
       @mixer.voices[ch].volume = 0
       @channels[ch].volume = 0
     console.log 'STOPPING'
 
-  soundbridge_render: (bridge, length, channels) =>
-    
-    l_buf = new Float32Array(length);
-    r_buf = new Float32Array(length);
-    @render(l_buf, r_buf, length);
-    for i in [0...length]
-      bridge.addToBuffer(l_buf[i], r_buf[i]);
+  # stop_nodes: ->
+  #   @render_node.onaudioprocess = null
+  #   @render_node.disconnect(@splitter)
+
+  prep_nodes: ->
+    if not @render_node?
+      @render_node = @context.createJavaScriptNode(2048, 2, 2)
+      @render_node.connect(@splitter)
+      @render_node.onaudioprocess = @js_render
+
+
+  js_render: (e) =>
+    console.log("js_render", e)
+    length = e.outputBuffer.getChannelData(0).length
+    l_buf = e.outputBuffer.getChannelData(0)
+    r_buf = e.outputBuffer.getChannelData(1)
+    @render(l_buf, r_buf, length)
 
   calc_ptable: ->
     @PTABLE = []
@@ -238,6 +267,8 @@ class window.CT2.player.Player
     @tick_rate = (125 * @OUTRATE) / (bpm * @OUTFPS)
   
   trig_single_note: (ch, sample, note) ->
+    @reset()
+    @prep_nodes()
     channel = @channels[ch]
     voice = @mixer.voices[ch]
     sample = @module.samples[sample]
@@ -296,7 +327,7 @@ class window.CT2.player.Player
       if (!@cur_tick)
         
         if note.sample
-          console.log("ns:", note.sample)
+          console.log("ns:", note.sample, "ch:", ch, "line: ", @cur_row)
           channel.sample = note.sample
           channel.finetune = @module.samples[note.sample - 1].finetune
           channel.volume = @module.samples[note.sample - 1].volume
@@ -462,8 +493,14 @@ class window.CT2.player.Player
 
 
 
-  render: (l_buf, r_buf, len) ->
-    
+  render: (l_buf, r_buf) ->
+    len = l_buf.length
+    console.log("render", len, @tick_rate)
+    for i in [0...len]
+      l_buf[i] = 0.0
+    for i in [0...len]
+      r_buf[i] = 0.0
+
     offset = 0
     
     while (len > 0)
@@ -476,6 +513,7 @@ class window.CT2.player.Player
       else
         @tick() if @playing
         @tr_counter = Math.floor(@tick_rate)
+    return null
     
 # give the app a single instance only
 window.CT2.PlayerInstance = new window.CT2.player.Player()

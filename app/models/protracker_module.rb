@@ -12,7 +12,7 @@ class ProtrackerModule < BinData::Record
     uint16 :replen
 
     def finetune
-      raw_finetune >= 8 ? raw_finetune - 16 : raw_finetune
+      raw_finetune >= 8 ? raw_finetune - 16 : raw_finetune.snapshot
     end
 
     def finetune=(ft)

@@ -4,7 +4,7 @@ json.samples @pt.samples do |json, sample|
   json.length sample.len.snapshot * 2
   json.repeat sample.repeat.snapshot * 2
   json.replen sample.replen.snapshot * 2
-  json.finetune sample.finetune.snapshot
+  json.finetune sample.finetune
   json.volume sample.volume.snapshot
 end
 json.pattern_table @pt.pattern_table.snapshot
