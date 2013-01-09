@@ -52,7 +52,7 @@ end
 group :development, :test do
   gem 'rspec-rails'
   gem 'konacha'
-  gem 'pg'
+  gem 'sqlite3'
 end
 
 group :production do
