@@ -23,6 +23,7 @@
 
 //= require cloudtracker
 //= require models/mod
+//= require web_audio_monkeypatch
 //= require player
 //= require buffer_conversions
 //= require tracker

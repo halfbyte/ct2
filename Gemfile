@@ -5,8 +5,6 @@ gem 'rails', '3.2.11'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-
-gem 'mysql2'
 gem 'json'
 gem 'jquery-rails'
 gem 'haml'
@@ -19,7 +17,6 @@ gem 'gelf'
 gem 'lograge'
 
 gem 'omniauth-soundcloud'
-gem 'unicorn'
 
 # Gems used only for assets and not required
 # in production environments by default.

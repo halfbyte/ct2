@@ -104,7 +104,7 @@ class window.CT2.player.Player
   constructor: ->
     @module = null
     @channels = []
-    @context = new webkitAudioContext()
+    @context = new AudioContext()
 
     for i in [0..3]
       @channels.push(new window.CT2.player.Channel(this))
@@ -120,10 +120,10 @@ class window.CT2.player.Player
     @separation = 0.7
     @splitter = @context.createChannelSplitter(2)
     @merger = @context.createChannelMerger(2)
-    @gain_rtl = @context.createGainNode()
-    @gain_rtr = @context.createGainNode()
-    @gain_ltl = @context.createGainNode()
-    @gain_ltr = @context.createGainNode()
+    @gain_rtl = @context.createGain()
+    @gain_rtr = @context.createGain()
+    @gain_ltl = @context.createGain()
+    @gain_ltr = @context.createGain()
 
     @gain_rtl.gain.value = 1.0 - @separation
     @gain_ltr.gain.value = 1.0 - @separation
@@ -204,7 +204,7 @@ class window.CT2.player.Player
     @pattern_only = true
     @playing = true
     @cur_row = 0
-    console.log 'PLAYING PATTERN', pattern
+    # console.log 'PLAYING PATTERN', pattern
 
   stop: ->
     # @stop_nodes()
@@ -212,7 +212,7 @@ class window.CT2.player.Player
     for ch in [0..3]
       @mixer.voices[ch].volume = 0
       @channels[ch].volume = 0
-    console.log 'STOPPING'
+    # console.log 'STOPPING'
 
   # stop_nodes: ->
   #   @render_node.onaudioprocess = null
@@ -220,13 +220,13 @@ class window.CT2.player.Player
 
   prep_nodes: ->
     if not @render_node?
-      @render_node = @context.createJavaScriptNode(2048, 2, 2)
+      @render_node = @context.createScriptProcessor(2048, 2, 2)
       @render_node.connect(@splitter)
       @render_node.onaudioprocess = @js_render
 
 
   js_render: (e) =>
-    console.log("js_render", e)
+    # console.log("js_render", e)
     length = e.outputBuffer.getChannelData(0).length
     l_buf = e.outputBuffer.getChannelData(0)
     r_buf = e.outputBuffer.getChannelData(1)
@@ -327,7 +327,7 @@ class window.CT2.player.Player
       if (!@cur_tick)
         
         if note.sample
-          console.log("ns:", note.sample, "ch:", ch, "line: ", @cur_row)
+          # console.log("ns:", note.sample, "ch:", ch, "line: ", @cur_row)
           channel.sample = note.sample
           channel.finetune = @module.samples[note.sample - 1].finetune
           channel.volume = @module.samples[note.sample - 1].volume
@@ -495,7 +495,7 @@ class window.CT2.player.Player
 
   render: (l_buf, r_buf) ->
     len = l_buf.length
-    console.log("render", len, @tick_rate)
+    # console.log("render", len, @tick_rate)
     for i in [0...len]
       l_buf[i] = 0.0
     for i in [0...len]
